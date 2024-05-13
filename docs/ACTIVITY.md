@@ -30,4 +30,4 @@ Approved PR: https://github.com/remla24-02/lib-ml/pull/1, https://github.com/rem
 
 -- Thijs Penning: --  
 Created PR: https://github.com/remla24-02/app/pull/3  
-Approved PR: https://github.com/remla24-02/model-service/pull/1
+Approved PR: https://github.com/remla24-02/model-service/pull/1, https://github.com/remla24-02/operation/pull/1
