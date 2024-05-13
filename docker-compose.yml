@@ -1,0 +1,18 @@
+services:
+  model-service:
+    image: "ghcr.io/remla24-02/model_service:latest"
+    container_name: model-service
+    ports:
+      - "8080:8080"
+    command: python ./app/main.py
+
+  app:
+    image: "ghcr.io/remla24-02/app:latest"
+    container_name: app
+    ports:
+      - "8000:8000"
+    environment:
+      - MODEL_SERVICE_URL=http://172.17.0.1:8080
+    depends_on:
+      - model-service
+    command: python manage.py runserver 0.0.0.0:8000
