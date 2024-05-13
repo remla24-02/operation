@@ -22,7 +22,7 @@ Approved PR: https://github.com/remla24-02/lib-version/pull/1
 
 -- Arjan Hasami: --  
 Created PR: https://github.com/remla24-02/model-training/pull/5, https://github.com/remla24-02/lib-ml/pull/1
-Approved PR: 
+Approved PR: https://github.com/remla24-02/lib-version/pull/1
 
 -- Nada Mouman: --  
 Created PR: https://github.com/remla24-02/lib-version/pull/1, https://github.com/remla24-02/operation/pull/1 
