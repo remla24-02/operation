@@ -16,11 +16,6 @@ Vagrant.configure("2") do |config|
     config.vm.box = "bento/ubuntu-24.04"
     config.vm.box_version = "202404.26.0"
 
-    # Idk if this is needed, idk if the double port forward would be a problem
-    # config.vm.network "forwarded_port", guest: 22, host: 2222, auto_correct: false, id: "ssh"
-    # Same here, I can't test the ssh myself
-    # config.ssh.password = "vagrant"
-
     # Define the controller node
     config.vm.define "controller" do |controller|
         controller.vm.network "private_network", ip: nodes_ip + "2"
