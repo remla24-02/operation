@@ -1,8 +1,8 @@
 *.DS_Store
 .idea/
-
 .ipynb_checkpoints
 __pycache__/
 venv
 .venv
 .vscode
+.vagrant
