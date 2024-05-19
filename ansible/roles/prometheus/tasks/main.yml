@@ -1,5 +1,5 @@
 - name: Check for Prometheus
-  shell: helm list -q -n default | grep -w prometheus
+  shell: helm list -q -n monitoring | grep -w prometheus
   register: prometheus_check
   ignore_errors: yes
 
@@ -12,5 +12,14 @@
   when: prometheus_check.failed
 
 - name: Install Prometheus
-  shell: helm install prometheus prometheus-community/prometheus
+  shell: helm install prometheus prometheus-community/prometheus -n monitoring
   when: prometheus_check.failed
+
+- name: Check for Prometheus dashboard
+  command: kubectl get svc prometheus-dashboard -n monitoring
+  register: prometheus_dashboard_check
+  ignore_errors: yes
+
+- name: Expose Prometheus dashboard
+  shell: kubectl expose svc prometheus-server --type=NodePort --target-port=9090 --name=prometheus-dashboard -n monitoring
+  when: prometheus_dashboard_check.failed

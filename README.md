@@ -36,6 +36,7 @@ In our experience, it can happen that one of the nodes gets stuck in some steps 
 Cancel the startup with `Ctrl+C` and check the node's status to find the faulty node id.
 Destroy this node and retry.
 To do this run the following commands:
+(In case it's the controller node you might need to rerun the provisioning of the workers (`vagrant up --provision`))
 ``` console
 vagrant global-status
 vagrant destroy <fault-node-id>
@@ -44,6 +45,10 @@ vagrant up
 
 The specific node configuration is defined in the Vagrantfile (IP, workers, cores, and memory).
 Currently, the controller node is available at `192.168.58.2` and the worked nodes at `[192.168.58.3, 192.168.58.4, ...]` (for as many worker nodes as are configured).
+You can check if the nodes are up and running with this command:
+``` console
+ansible all -m ping -i ansible/inventory.cfg
+```
 
 ## Usage
 Once the application has been deployed, you can go to http://localhost:8000/

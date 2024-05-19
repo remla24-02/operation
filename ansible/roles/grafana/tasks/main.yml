@@ -1,5 +1,5 @@
 - name: Check for Grafana
-  shell: helm list -q -n default | grep -w grafana
+  shell: helm list -q -n monitoring | grep -w grafana
   register: grafana_check
   ignore_errors: yes
 
@@ -12,5 +12,14 @@
   when: grafana_check.failed
 
 - name: Install Grafana
-  shell: helm install grafana grafana/grafana
+  shell: helm install grafana grafana/grafana -n monitoring
   when: grafana_check.failed
+
+- name: Check for Grafana dashboard
+  command: kubectl get svc grafana-dashboard -n monitoring
+  register: grafana_dashboard_check
+  ignore_errors: yes
+
+- name: Expose Grafana dashboard
+  shell: kubectl expose svc grafana --type=NodePort --target-port=3000 --name=grafana-dashboard -n monitoring
+  when: grafana_dashboard_check.failed

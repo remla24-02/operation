@@ -4,23 +4,21 @@
   ignore_errors: yes
 
 - name: Install Docker
-  become: yes
   apt:
     name: docker.io
     state: present
   when: docker_check.failed
 
 - name: Add user to docker group
+  become: no
   shell: sudo usermod -aG docker $USER
   when: docker_check.failed
 
 - name: Reboot to update docker group
-  become: yes
   reboot:
   when: docker_check.failed
 
 - name: Install Minikube
-  become: yes
   shell: curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 &&
     sudo install minikube-linux-amd64 /usr/local/bin/minikube && rm minikube-linux-amd64
   args:
@@ -32,6 +30,23 @@
   ignore_errors: yes
 
 - name: Install Kubectl
-  become: yes
   shell: sudo snap install kubectl --classic
   when: kubectl_check.failed
+
+- name: Check for Kubelet
+  command: kubelet --version
+  register: kubelet_check
+  ignore_errors: yes
+
+- name: Install kubelet
+  shell: sudo snap install kubelet --classic
+  when: kubelet_check.failed
+
+- name: Check for Kubeadm
+  command: kubeadm version
+  register: kubeadm_check
+  ignore_errors: yes
+
+- name: Install kubeadm
+  shell: sudo snap install kubeadm --classic
+  when: kubeadm_check.failed

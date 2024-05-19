@@ -1,0 +1,49 @@
+#- name: Install Crictl
+#  shell: wget https://github.com/kubernetes-sigs/cri-tools/releases/download/v1.30.0/crictl-v1.30.0-linux-amd64.tar.gz &&
+#    sudo tar zxvf crictl-v1.30.0-linux-amd64.tar.gz -C /usr/local/bin &&
+#    rm -f crictl-v1.30.0-linux-amd64.tar.gz
+
+#- name: Install Conntrack
+#  apt:
+#    name: conntrack
+#    state: present
+#
+#- name: Install Socat
+#  apt:
+#    name: socat
+#    state: present
+
+- name: Check Kubelet service
+  command: systemctl enable kubelet.service
+  register: kubelet_service_check
+  ignore_errors: yes
+
+- name: Create kubelet.service
+  copy:
+    dest: /etc/systemd/system/kubelet.service
+    content: |
+      [Unit]
+      Description=kubelet: The Kubernetes Node Agent
+      Documentation=https://kubernetes.io/docs/
+      After=network-online.target
+      Wants=network-online.target
+
+      [Service]
+      ExecStart=/usr/bin/kubelet
+      Restart=always
+      StartLimitInterval=0
+      RestartSec=10
+
+      [Install]
+      WantedBy=multi-user.target
+  when: kubelet_service_check.failed
+
+- name: Reload systemd
+  command: systemctl daemon-reload
+  when: kubelet_service_check.failed
+
+- name: Enable kubelet service
+  shell: sudo systemctl enable kubelet
+
+- name: Start kubelet service
+  shell: sudo systemctl start kubelet

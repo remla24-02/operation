@@ -1,0 +1,15 @@
+- name: Fetch Kubeadm join command
+  fetch:
+    src: /home/{{ ansible_user }}/kubeadm_join_command.txt
+    dest: /tmp/kubeadm_join_command.txt
+    flat: yes
+  delegate_to: controller
+
+- name: Read Kubeadm join command
+  become: no
+  command: cat /tmp/kubeadm_join_command.txt
+  register: kubeadm_join_command
+  delegate_to: localhost
+
+- name: Worker join cluster
+  shell: "{{ kubeadm_join_command.stdout }}"

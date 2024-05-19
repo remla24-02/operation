@@ -18,20 +18,24 @@ Vagrant.configure("2") do |config|
 
     # Define the controller node
     config.vm.define "controller" do |controller|
+        controller.vm.hostname = "controller"
         controller.vm.network "private_network", ip: nodes_ip + "2"
-        controller.vm.provider "virtualbox" do |v|
-            v.cpus = controller_cores
-            v.memory = controller_mem
+        controller.vm.provider "virtualbox" do |vb|
+            vb.name = "controller"
+            vb.memory = controller_mem
+            vb.cpus = controller_cores
         end
     end
 
     # Define the worker nodes
     (1..workers).each do |i|
         config.vm.define "node#{i}" do |worker|
+            worker.vm.hostname = "node#{i}"
             worker.vm.network "private_network", ip: nodes_ip + "#{2 + i}"
-            worker.vm.provider "virtualbox" do |v|
-                v.cpus = worker_cores
-                v.memory = worker_mem
+            worker.vm.provider "virtualbox" do |vb|
+                vb.name = "node#{i}"
+                vb.memory = worker_mem
+                vb.cpus = worker_cores
             end
         end
     end
@@ -40,5 +44,6 @@ Vagrant.configure("2") do |config|
     config.vm.provision :ansible do |a|
         a.compatibility_mode = "2.0"
         a.playbook = "ansible/provisioning.yml"
+        a.inventory_path = "ansible/inventory.cfg"
     end
 end
