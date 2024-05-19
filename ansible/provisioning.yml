@@ -1,0 +1,10 @@
+- hosts: all
+  become: no
+  gather_facts: no
+  roles:
+    - role: minikube
+    - role: cluster
+    - role: helm
+    - role: prometheus
+    - role: grafana
+    - role: dashboards

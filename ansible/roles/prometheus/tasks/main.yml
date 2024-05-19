@@ -1,0 +1,16 @@
+- name: Check for Prometheus
+  shell: helm list -q -n default | grep -w prometheus
+  register: prometheus_check
+  ignore_errors: yes
+
+- name: Add Prometheus repo
+  shell: helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+  when: prometheus_check.failed
+
+- name: Update helm repo
+  shell: helm repo update
+  when: prometheus_check.failed
+
+- name: Install Prometheus
+  shell: helm install prometheus prometheus-community/prometheus
+  when: prometheus_check.failed

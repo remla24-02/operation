@@ -1,0 +1,37 @@
+- name: Check for Docker
+  command: docker --version
+  register: docker_check
+  ignore_errors: yes
+
+- name: Install Docker
+  become: yes
+  apt:
+    name: docker.io
+    state: present
+  when: docker_check.failed
+
+- name: Add user to docker group
+  shell: sudo usermod -aG docker $USER
+  when: docker_check.failed
+
+- name: Reboot to update docker group
+  become: yes
+  reboot:
+  when: docker_check.failed
+
+- name: Install Minikube
+  become: yes
+  shell: curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 &&
+    sudo install minikube-linux-amd64 /usr/local/bin/minikube && rm minikube-linux-amd64
+  args:
+    creates: /usr/local/bin/minikube
+
+- name: Check if kubectl is installed
+  command: kubectl version --client
+  register: kubectl_check
+  ignore_errors: yes
+
+- name: Install Kubectl
+  become: yes
+  shell: sudo snap install kubectl --classic
+  when: kubectl_check.failed

@@ -2,7 +2,7 @@
 nodes_ip = "192.168.58."
 
 # The control node configuration
-controller_cores = 1
+controller_cores = 2
 controller_mem = 1024 * 4
 
 # The worker nodes configuration
@@ -37,8 +37,8 @@ Vagrant.configure("2") do |config|
     end
 
     # Set up the Ansible playbooks
-#     config.vm.provision :ansible do |a|
-#         a.compatibility_mode = "2.0"
-#         a.playbook = "provisioning.yml"
-#     end
+    config.vm.provision :ansible do |a|
+        a.compatibility_mode = "2.0"
+        a.playbook = "ansible/provisioning.yml"
+    end
 end

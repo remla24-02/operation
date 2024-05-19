@@ -1,0 +1,5 @@
+- name: Start cluster
+  shell: minikube start --driver=docker
+
+- name: Enable dashboard addon
+  shell: minikube addons enable dashboard

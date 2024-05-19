@@ -27,8 +27,13 @@ To set up/start the Vagrant nodes run:
 ``` console
 vagrant up
 ```
+If you get a VBoxManage error asking to disable the KVM kernel extension run: (This might clash with Docker)
+``` console
+sudo rmmod kvm-intel
+vagrant up
+```
 
-In our experience, it can happen that one of the nodes gets stuck in the `Booting VM...` step or any other faulty behavior prevents the completion of the setup.
+In our experience, it can happen that one of the nodes gets stuck in some steps (`Booting VM...`, `Reboot to update docker group`, etc.) due to some faulty node setup from Vagrant leaving the node unusable.
 Cancel the startup with `Ctrl+C` and check the node's status to find the faulty node id.
 Destroy this node and retry.
 To do this run the following commands:
@@ -39,7 +44,7 @@ vagrant up
 ```
 
 The specific node configuration is defined in the Vagrantfile (IP, workers, cores, and memory).
-Currently, the controller node is available at `192.168.58.2` and the worked nodes at `[192.168.58.3, 192.168.58.4, ...]` (as many worker nodes as are configured).
+Currently, the controller node is available at `192.168.58.2` and the worked nodes at `[192.168.58.3, 192.168.58.4, ...]` (for as many worker nodes as are configured).
 
 ### Ansible
 TODO

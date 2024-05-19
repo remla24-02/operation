@@ -1,0 +1,16 @@
+- name: Check for Grafana
+  shell: helm list -q -n default | grep -w grafana
+  register: grafana_check
+  ignore_errors: yes
+
+- name: Add Grafana repo
+  shell: helm repo add grafana https://grafana.github.io/helm-charts
+  when: grafana_check.failed
+
+- name: Update helm repo
+  shell: helm repo update
+  when: grafana_check.failed
+
+- name: Install Grafana
+  shell: helm install grafana grafana/grafana
+  when: grafana_check.failed
