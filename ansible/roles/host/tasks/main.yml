@@ -1,0 +1,17 @@
+- name: Ensure .kube directory exists
+  file:
+    path: "{{ lookup('env', 'HOME') }}/.kube"
+    state: directory
+    mode: '0755'
+
+- name: Fetch the kubeconfig file from the MicroK8s node to control host
+  fetch:
+    src: /var/snap/microk8s/current/credentials/client.config
+    dest: "{{ lookup('env', 'HOME') }}/.kube/config"
+    flat: yes
+
+- name: Set KUBECONFIG environment variable on control host
+  lineinfile:
+    path: "{{ lookup('env', 'HOME') }}/.bashrc"
+    line: 'export KUBECONFIG={{ lookup("env", "HOME") }}/.kube/config'
+    create: yes

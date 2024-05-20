@@ -9,6 +9,7 @@
     - role: setup
     - role: prometheus
     - role: grafana
+#    - role: host
 
 - hosts: workers
   become: yes

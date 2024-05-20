@@ -24,12 +24,20 @@ We assume [Vagrant](https://www.vagrantup.com/), a supported provider (e.g. [Vir
 To set up/start the Vagrant nodes with the Ansible provisioning run:
 ``` console
 vagrant up
+vagrant provision
+vagrant provision
 ```
+The first command creates all the nodes, installs everything on them and start the cluster in the control node.
+As registering the worker nodes is tricky this requires the other 2! calls to provision.
+NOTE: This only applies when creating the nodes the first time.
+
 If you get a VBoxManage error asking to disable the KVM kernel extension run:
 (This clashes with Docker so restart if needed.)
 ``` console
 sudo rmmod kvm-intel
 vagrant up
+vagrant provision
+vagrant provision
 ```
 
 In our experience, it can happen that one of the nodes gets stuck in some steps (e.g. `Booting VM...`) due to some faulty node setup from Vagrant leaving the node unusable.
@@ -42,10 +50,9 @@ To do this run the following commands:
 vagrant global-status
 vagrant destroy <fault-node-id>
 vagrant up
+vagrant provision
+vagrant provision
 ```
-
-It can happen that during the provisioning generating the join command fails mentioning that the controller ip was added to the list of known hosts.
-However, now that the ip was added you are safe to run `vagrant provision` to fix the setup from the same directory.
 
 The specific node configuration is defined in the Vagrantfile (IP, workers, cores, and memory).
 Currently, the controller node is available at `192.168.58.2` and the worked nodes at `[192.168.58.3, 192.168.58.4, ...]` (for as many worker nodes as are configured).
@@ -58,7 +65,8 @@ Additionally, you can check that all nodes are correctly added to the cluster:
 ``` console
 vagrant ssh controller -c "sudo microk8s kubectl get nodes -o wide"
 ```
-If a node doesn't show up just run `vagrant provision` again and that should fix it.
+If a node doesn't show up running `vagrant provision` again should fix the problem.
+As previously mentioned, they don't always attach properly.
 
 ## Usage
 Once the application has been deployed, you can go to http://localhost:8000/
