@@ -6,3 +6,5 @@ venv
 .venv
 .vscode
 .vagrant
+
+microk8s-config

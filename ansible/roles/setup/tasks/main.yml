@@ -10,7 +10,7 @@
 - name: Enable host access
   command: microk8s enable host-access
 
-# For a later assignment
+# For a later assignment (not tested yet, don't just activate)
 #- name: Enable Istio
 #  command: sudo microk8s enable istio
 
