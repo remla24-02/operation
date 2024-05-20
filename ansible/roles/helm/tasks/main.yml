@@ -1,9 +1,0 @@
-- name: Check for Helm
-  command: helm version --short
-  register: helm_check
-  ignore_errors: yes
-
-- name: Install Helm
-  become: yes
-  shell: sudo snap install helm --classic
-  when: helm_check.failed

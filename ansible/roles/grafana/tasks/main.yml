@@ -1,25 +1,25 @@
 - name: Check for Grafana
-  shell: helm list -q -n monitoring | grep -w grafana
+  shell: microk8s helm list -q -n monitoring | grep -w grafana
   register: grafana_check
   ignore_errors: yes
 
 - name: Add Grafana repo
-  shell: helm repo add grafana https://grafana.github.io/helm-charts
+  shell: microk8s helm repo add grafana https://grafana.github.io/helm-charts
   when: grafana_check.failed
 
 - name: Update helm repo
-  shell: helm repo update
+  shell: microk8s helm repo update
   when: grafana_check.failed
 
 - name: Install Grafana
-  shell: helm install grafana grafana/grafana -n monitoring
+  shell: microk8s helm install grafana grafana/grafana -n monitoring
   when: grafana_check.failed
 
 - name: Check for Grafana dashboard
-  command: kubectl get svc grafana-dashboard -n monitoring
+  command: microk8s kubectl get svc grafana-dashboard -n monitoring
   register: grafana_dashboard_check
   ignore_errors: yes
 
 - name: Expose Grafana dashboard
-  shell: kubectl expose svc grafana --type=NodePort --target-port=3000 --name=grafana-dashboard -n monitoring
+  shell: microk8s kubectl expose svc grafana --type=NodePort --target-port=3000 --name=grafana-dashboard -n monitoring
   when: grafana_dashboard_check.failed

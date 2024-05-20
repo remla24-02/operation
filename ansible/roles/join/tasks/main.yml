@@ -1,0 +1,11 @@
+- name: Generate join command
+  command: microk8s add-node
+  register: join_command
+  delegate_to: controller
+
+- name: Extract join command
+  set_fact:
+    join_command: "{{ join_command.stdout_lines | select('search', 'microk8s join ' ~ controller_ip) | list | first }} --worker"
+
+- name: Run join command
+  command: "{{ join_command }}"

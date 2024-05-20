@@ -1,26 +1,16 @@
 - hosts: all
   become: yes
-  gather_facts: no
   roles:
-    - role: minikube
+    - role: microk8s
 
 - hosts: control
-  become: no
-  gather_facts: no
+  become: yes
   roles:
-    - role: cluster_create
-    - role: helm
+    - role: setup
     - role: prometheus
     - role: grafana
 
 - hosts: workers
   become: yes
-  gather_facts: no
   roles:
-    - role: kubelet
-    - role: cluster_join
-
-# TODO: Check if you can join as control node
-# TODO: Store the join key
-# TODO: Load the join key elsewhere
-# TODO: Add namespace for monitoring
+    - role: join

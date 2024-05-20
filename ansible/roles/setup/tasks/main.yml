@@ -1,0 +1,24 @@
+- name: Enable dns
+  command: microk8s enable dns
+
+- name: Enable dashboard
+  command: microk8s enable dashboard
+
+- name: Enable Helm
+  command: microk8s enable helm
+
+- name: Enable host access
+  command: microk8s enable host-access
+
+# For a later assignment
+#- name: Enable Istio
+#  command: sudo microk8s enable istio
+
+- name: Check for monitoring namespace
+  command: microk8s kubectl get namespace monitoring
+  register: monitoring_namespace_check
+  ignore_errors: true
+
+- name: Create monitoring namespace
+  shell: microk8s kubectl create namespace monitoring
+  when: monitoring_namespace_check.failed
