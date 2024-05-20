@@ -97,3 +97,25 @@ With this export of direct definition you can control the cluster from your loca
 
 ## Usage
 Once the application has been deployed, you can go to http://localhost:8000/
+
+## Kubernetes
+
+### Requirements
+
+### Manual Deployment
+
+If you would like to manually deploy the application to a Kubernetes cluster, go to the directory ```kubernetes``` and run:
+
+```
+kubectl apply -f deployment.yml
+```
+
+Then you can tunnel the Ingress to localhost, by running:
+
+```
+minikube tunnel
+```
+
+After this, you can access the application by going to http://localhost
+
+
