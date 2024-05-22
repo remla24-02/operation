@@ -20,7 +20,7 @@ Vagrant.configure("2") do |config|
     # Define the controller node
     config.vm.define "controller" do |controller|
         controller.vm.hostname = "controller"
-        controller.vm.network "private_network", ip: nodes_ip + "#{start_device}"
+        controller.vm.network "private_network", ip: "#{nodes_ip}#{start_device}"
         controller.vm.provider "virtualbox" do |vb|
             vb.name = "controller"
             vb.memory = controller_mem
@@ -32,7 +32,7 @@ Vagrant.configure("2") do |config|
     (1..workers).each do |i|
         config.vm.define "node#{i}" do |worker|
             worker.vm.hostname = "node#{i}"
-            worker.vm.network "private_network", ip: nodes_ip + "#{start_device + i}"
+            worker.vm.network "private_network", ip: "#{nodes_ip}#{start_device + i}"
             worker.vm.provider "virtualbox" do |vb|
                 vb.name = "node#{i}"
                 vb.memory = worker_mem
