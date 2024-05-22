@@ -31,6 +31,12 @@ The first command creates all the nodes, installs everything on them and start t
 As registering the worker nodes is tricky this requires the other 2! calls to provision.
 NOTE: This only applies when creating the nodes the first time.
 
+If you already created the cluster previously and are just restarting the nodes you should run: 
+``` console
+vagrant up --provision
+```
+This starts the nodes again and the provision is needed again for the worker registration difficulty mentioned previously.
+
 If you get a VBoxManage error asking to disable the KVM kernel extension run:
 (This clashes with Docker so restart if needed.)
 ``` console
