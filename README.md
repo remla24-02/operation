@@ -47,8 +47,8 @@ Destroy this node and retry.
 To do this run the following commands (NOTE: It should be run in the main directory):
 (In case it's the controller node you might need to rerun the provisioning of the workers (`vagrant up --provision`).)
 ``` console
-vagrant global-status
-vagrant destroy <fault-node-id>
+vagrant destroy <fault-node>
+vagrant ssh controller -c "sudo microk8s remove-node <faulty-node>"
 vagrant up
 vagrant provision
 vagrant provision
