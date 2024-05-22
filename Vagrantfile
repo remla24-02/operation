@@ -47,7 +47,7 @@ Vagrant.configure("2") do |config|
         a.playbook = "ansible/provisioning.yml"
         a.inventory_path = "ansible/inventory.cfg"
         a.extra_vars = {
-            "controller_ip" => nodes_ip + "#{start_device}"
+            "controller_ip" => "#{nodes_ip}#{start_device}"
         }
     end
 end

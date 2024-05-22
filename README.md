@@ -16,7 +16,7 @@ docker login ghcr.io
 Then you can deploy the application by running:
 
 ```
-docker-compose up
+docker compose up
 ```
 
 ## Provisioning
