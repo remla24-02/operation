@@ -102,7 +102,19 @@ Once the application has been deployed, you can go to http://localhost:8000/
 
 ### Requirements
 
+Make sure that [minikube](https://minikube.sigs.k8s.io/docs/start/) and [Docker](https://www.docker.com/) are installed and start a Kubernetes cluster by running:
+
+```
+minikube start --driver=docker
+```
+
 ### Manual Deployment
+
+Note: Make sure to have enabled the ingress addons by running:
+
+```
+minikube addons enable ingress
+```
 
 If you would like to manually deploy the application to a Kubernetes cluster, go to the directory ```kubernetes``` and run:
 
@@ -117,5 +129,11 @@ minikube tunnel
 ```
 
 After this, you can access the application by going to http://localhost
+
+To access the application via port 8000, you can run:
+
+```
+kubectl port-forward svc/app-serv 8000:8000
+```
 
 
