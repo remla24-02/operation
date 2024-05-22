@@ -1,0 +1,23 @@
+- name: Get kube config
+  command: cat /var/snap/microk8s/current/credentials/client.config
+  register: controller_config
+
+- name: Save kube config
+  copy:
+    content: "{{ controller_config.stdout }}"
+    dest: /vagrant/microk8s-config
+
+- name: Fix kube config server address
+  replace:
+    path: /vagrant/microk8s-config
+    regexp: 'server: https://127\.0\.0\.1:'
+    replace: 'server: https://{{ controller_ip }}:'
+
+# Option for Linux to move it directly in their .kube config folder
+#- name: Move kube config
+#  become: no
+#  copy:
+#    src: ../microk8s-config
+#    dest: /home/$USER/.kube/microk8s-config
+#  ignore_errors: yes
+#  delegate_to: localhost

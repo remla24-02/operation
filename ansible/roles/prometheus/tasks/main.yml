@@ -1,0 +1,25 @@
+- name: Check for Prometheus
+  shell: microk8s helm list -q -n monitoring | grep -w prometheus
+  register: prometheus_check
+  ignore_errors: yes
+
+- name: Add Prometheus repo
+  shell: microk8s helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+  when: prometheus_check.failed
+
+- name: Update helm repo
+  shell: microk8s helm repo update
+  when: prometheus_check.failed
+
+- name: Install Prometheus
+  shell: microk8s helm install prometheus prometheus-community/prometheus -n monitoring
+  when: prometheus_check.failed
+
+- name: Check for Prometheus dashboard
+  command: microk8s kubectl get svc prometheus-dashboard -n monitoring
+  register: prometheus_dashboard_check
+  ignore_errors: yes
+
+- name: Expose Prometheus dashboard
+  shell: microk8s kubectl expose svc prometheus-server --type=NodePort --target-port=9090 --name=prometheus-dashboard -n monitoring
+  when: prometheus_dashboard_check.failed

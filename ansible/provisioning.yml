@@ -1,0 +1,21 @@
+- hosts: all
+  become: yes
+  roles:
+    - role: microk8s
+
+- hosts: control
+  become: yes
+  roles:
+    - role: setup
+    - role: prometheus
+    - role: grafana
+
+- hosts: control
+  become: yes
+  roles:
+    - role: host
+
+- hosts: workers
+  become: yes
+  roles:
+    - role: join

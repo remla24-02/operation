@@ -1,0 +1,18 @@
+- name: Update cache
+  apt:
+    update_cache: yes
+
+- name: Check MicroK8s
+  command: microk8s status --wait-ready
+  register: microk8s_check
+  ignore_errors: yes
+
+- name: Install MicroK8s
+  shell: snap install microk8s --classic
+  when: microk8s_check.failed
+
+- name: Start MicroK8s
+  command: microk8s start
+  when: microk8s_check.rc == 0
+
+

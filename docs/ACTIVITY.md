@@ -15,6 +15,7 @@ Approved PR: https://github.com/remla24-02/model/pull/2, https://github.com/reml
 Created PR: https://github.com/remla24-02/model/pull/3  
 Approved PR: https://github.com/remla24-02/model/pull/2
 
+
 # A2:
 -- Rodin Haker: --  
 Created PR: https://github.com/remla24-02/model-service/pull/1  
@@ -31,3 +32,21 @@ Approved PR: https://github.com/remla24-02/lib-ml/pull/1, https://github.com/rem
 -- Thijs Penning: --  
 Created PR: https://github.com/remla24-02/app/pull/3  
 Approved PR: https://github.com/remla24-02/model-service/pull/1, https://github.com/remla24-02/operation/pull/1
+
+
+# A2:
+-- Rodin Haker: --  
+Created PR:   
+Approved PR: 
+
+-- Arjan Hasami: --  
+Created PR:   
+Approved PR: 
+
+-- Nada Mouman: --  
+Created PR:    
+Approved PR: 
+
+-- Thijs Penning: --  
+Created PR: https://github.com/remla24-02/operation/pull/2, https://github.com/remla24-02/operation/pull/3  
+Approved PR: 
