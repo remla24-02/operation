@@ -1,25 +1,37 @@
 - name: Check for Grafana
-  shell: microk8s helm list -q -n monitoring | grep -w grafana
+  ansible.builtin.shell: microk8s helm list -q -n monitoring | grep grafana
   register: grafana_check
-  ignore_errors: yes
+  failed_when: grafana_check.rc != 0
+  changed_when: false
+  ignore_errors: true
 
 - name: Add Grafana repo
-  shell: microk8s helm repo add grafana https://grafana.github.io/helm-charts
+  ansible.builtin.command:
+    cmd: microk8s helm repo add grafana https://grafana.github.io/helm-charts
   when: grafana_check.failed
+  changed_when: false
 
 - name: Update helm repo
-  shell: microk8s helm repo update
+  ansible.builtin.command:
+    cmd: microk8s helm repo update
   when: grafana_check.failed
+  changed_when: false
 
 - name: Install Grafana
-  shell: microk8s helm install grafana grafana/grafana -n monitoring
+  ansible.builtin.command:
+    cmd: microk8s helm install grafana grafana/grafana -n monitoring --create-namespace
   when: grafana_check.failed
+  changed_when: false
 
 - name: Check for Grafana dashboard
-  command: microk8s kubectl get svc grafana-dashboard -n monitoring
+  ansible.builtin.command:
+    cmd: microk8s kubectl get svc grafana-dashboard -n monitoring
   register: grafana_dashboard_check
-  ignore_errors: yes
+  changed_when: false
+  ignore_errors: true
 
 - name: Expose Grafana dashboard
-  shell: microk8s kubectl expose svc grafana --type=NodePort --target-port=3000 --name=grafana-dashboard -n monitoring
+  ansible.builtin.command:
+    cmd: microk8s kubectl expose svc grafana --type=NodePort --target-port=3000 --name=grafana-dashboard -n monitoring
   when: grafana_dashboard_check.failed
+  changed_when: false

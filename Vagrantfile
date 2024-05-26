@@ -38,16 +38,18 @@ Vagrant.configure("2") do |config|
                 vb.memory = worker_mem
                 vb.cpus = worker_cores
             end
+            # Set up the Ansible playbooks after all nodes created
+            if i == workers
+                worker.vm.provision :ansible do |a|
+                    a.limit = "all"
+                    a.compatibility_mode = "2.0"
+                    a.playbook = "ansible/provisioning.yml"
+                    a.inventory_path = "ansible/inventory.cfg"
+                    a.extra_vars = {
+                        "controller_ip" => "#{nodes_ip}#{start_device}"
+                    }
+                end
+            end
         end
-    end
-
-    # Set up the Ansible playbooks
-    config.vm.provision :ansible do |a|
-        a.compatibility_mode = "2.0"
-        a.playbook = "ansible/provisioning.yml"
-        a.inventory_path = "ansible/inventory.cfg"
-        a.extra_vars = {
-            "controller_ip" => "#{nodes_ip}#{start_device}"
-        }
     end
 end

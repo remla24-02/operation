@@ -1,0 +1,5 @@
+base_dir: "{{ playbook_dir }}/../.vagrant/machines"
+
+controller_private_key: "{{ base_dir }}/controller/virtualbox/private_key"
+node1_private_key: "{{ base_dir }}/node1/virtualbox/private_key"
+node2_private_key: "{{ base_dir }}/node2/virtualbox/private_key"

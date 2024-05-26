@@ -1,25 +1,67 @@
-- name: Check for Prometheus
-  shell: microk8s helm list -q -n monitoring | grep -w prometheus
-  register: prometheus_check
-  ignore_errors: yes
-
 - name: Add Prometheus repo
-  shell: microk8s helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-  when: prometheus_check.failed
+  ansible.builtin.command:
+    cmd: microk8s helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+  changed_when: false
 
 - name: Update helm repo
-  shell: microk8s helm repo update
-  when: prometheus_check.failed
+  ansible.builtin.command:
+    cmd: microk8s helm repo update
+  changed_when: false
+
+- name: Check for Prometheus CRDs
+  ansible.builtin.shell: microk8s kubectl get crd | grep prometheus
+  register: prometheus_crd_check
+  failed_when: prometheus_crd_check.rc != 0
+  changed_when: false
+  ignore_errors: true
+
+- name: Install Prometheus CRDs
+  ansible.builtin.command:
+    cmd: microk8s helm install prometheus-operator prometheus-community/kube-prometheus-stack
+  environment:
+    KUBECONFIG: /vagrant/microk8s-config
+  become: true
+  when: prometheus_crd_check.failed
+  changed_when: false
+
+- name: Apply Prometheus ConfigMap
+  ansible.builtin.command:
+    cmd: microk8s kubectl apply -f /tmp/kubernetes/configmaps/prometheus-configmap.yml
+  environment:
+    KUBECONFIG: /vagrant/microk8s-config
+  become: true
+  changed_when: false
+
+- name: Apply PrometheusRule
+  ansible.builtin.command:
+    cmd: microk8s kubectl apply -f /tmp/kubernetes/rules/prometheus-rules.yml
+  environment:
+    KUBECONFIG: /vagrant/microk8s-config
+  become: true
+  changed_when: false
+
+- name: Check for Prometheus
+  ansible.builtin.shell: microk8s helm list -q -n monitoring | grep -w prometheus
+  register: prometheus_check
+  failed_when: prometheus_check.rc != 0
+  changed_when: false
+  ignore_errors: true
 
 - name: Install Prometheus
-  shell: microk8s helm install prometheus prometheus-community/prometheus -n monitoring
+  ansible.builtin.command:
+    cmd: microk8s helm install prometheus prometheus-community/prometheus -n monitoring -f /tmp/kubernetes/helm/prometheus-values.yml
   when: prometheus_check.failed
+  changed_when: false
 
 - name: Check for Prometheus dashboard
-  command: microk8s kubectl get svc prometheus-dashboard -n monitoring
+  ansible.builtin.shell: microk8s kubectl get svc -n monitoring | grep prometheus-dashboard
   register: prometheus_dashboard_check
-  ignore_errors: yes
+  failed_when: prometheus_dashboard_check.rc != 0
+  changed_when: false
+  ignore_errors: true
 
 - name: Expose Prometheus dashboard
-  shell: microk8s kubectl expose svc prometheus-server --type=NodePort --target-port=9090 --name=prometheus-dashboard -n monitoring
+  ansible.builtin.command:
+    cmd: microk8s kubectl expose svc prometheus-server --type=NodePort --target-port=9090 --name=prometheus-dashboard -n monitoring
   when: prometheus_dashboard_check.failed
+  changed_when: false
