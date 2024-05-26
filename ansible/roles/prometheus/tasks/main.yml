@@ -8,16 +8,16 @@
     cmd: microk8s helm repo update
   changed_when: false
 
-- name: Check for Prometheus CRDs
+- name: Check for Prometheus
   ansible.builtin.shell: microk8s kubectl get crd | grep prometheus
   register: prometheus_crd_check
   failed_when: prometheus_crd_check.rc != 0
   changed_when: false
   ignore_errors: true
 
-- name: Install Prometheus CRDs
+- name: Install Prometheus
   ansible.builtin.command:
-    cmd: microk8s helm install prometheus-operator prometheus-community/kube-prometheus-stack
+    cmd: microk8s helm install prometheus prometheus-community/kube-prometheus-stack  -n monitoring -f /tmp/kubernetes/helm/prometheus-values.yml
   environment:
     KUBECONFIG: /vagrant/microk8s-config
   become: true
@@ -40,28 +40,18 @@
   become: true
   changed_when: false
 
-- name: Check for Prometheus
-  ansible.builtin.shell: microk8s helm list -q -n monitoring | grep -w prometheus
-  register: prometheus_check
-  failed_when: prometheus_check.rc != 0
-  changed_when: false
-  ignore_errors: true
-
-- name: Install Prometheus
+- name: Expose Prometheus deployment
   ansible.builtin.command:
-    cmd: microk8s helm install prometheus prometheus-community/prometheus -n monitoring -f /tmp/kubernetes/helm/prometheus-values.yml
-  when: prometheus_check.failed
+    cmd: microk8s kubectl expose deployment prometheus-kube-prometheus-operator --type=NodePort --name=prometheus-service --namespace=monitoring --port=9090 --target-port=9090
+  environment:
+    KUBECONFIG: /vagrant/microk8s-config
+  become: true
   changed_when: false
 
-- name: Check for Prometheus dashboard
-  ansible.builtin.shell: microk8s kubectl get svc -n monitoring | grep prometheus-dashboard
-  register: prometheus_dashboard_check
-  failed_when: prometheus_dashboard_check.rc != 0
-  changed_when: false
-  ignore_errors: true
-
-- name: Expose Prometheus dashboard
+- name: Expose Grafana deployment
   ansible.builtin.command:
-    cmd: microk8s kubectl expose svc prometheus-server --type=NodePort --target-port=9090 --name=prometheus-dashboard -n monitoring
-  when: prometheus_dashboard_check.failed
+    cmd: microk8s kubectl expose deployment prometheus-grafana --type=NodePort --name=grafana-service --namespace=monitoring --port=3000 --target-port=3000
+  environment:
+    KUBECONFIG: /vagrant/microk8s-config
+  become: true
   changed_when: false

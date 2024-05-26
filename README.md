@@ -24,41 +24,8 @@ We assume [Vagrant](https://www.vagrantup.com/), a supported provider (e.g. [Vir
 To set up/start the Vagrant nodes with the Ansible provisioning run:
 ``` console
 vagrant up
-vagrant provision
-vagrant provision
 ```
-The first command creates all the nodes, installs everything on them and start the cluster in the control node.
-As registering the worker nodes is tricky this requires the other 2! calls to provision.
-NOTE: This only applies when creating the nodes the first time.
-
-If you already created the cluster previously and are just restarting the nodes you should run: 
-``` console
-vagrant up --provision
-```
-This starts the nodes again and the provision is needed again for the worker registration difficulty mentioned previously.
-
-If you get a VBoxManage error asking to disable the KVM kernel extension run:
-(This clashes with Docker so restart if needed.)
-``` console
-sudo rmmod kvm-intel
-vagrant up
-vagrant provision
-vagrant provision
-```
-
-In our experience, one of the nodes may get stuck in some steps (e.g. `Booting VM...`) due to some faulty node setup from Vagrant leaving the node unusable.
-Do mind that some steps such as installing big things (e.g. `MicroK8s`) can require a few minutes depending on your machine.
-Cancel the startup with `Ctrl+C` and check the node's status to find the faulty node id.
-Destroy this node and retry.
-To do this run the following commands (NOTE: It should be run in the main directory):
-(In case it's the controller node you might need to rerun the provisioning of the workers (`vagrant up --provision`).)
-``` console
-vagrant destroy <fault-node>
-vagrant ssh controller -c "sudo microk8s remove-node <faulty-node>"
-vagrant up
-vagrant provision
-vagrant provision
-```
+This command creates all the nodes, installs everything on them and start the cluster in the control node.
 
 The specific node configuration is defined in the Vagrantfile (IP, workers, cores, and memory).
 Currently, the controller node is available at `192.168.58.2` and the worked nodes at `[192.168.58.3, 192.168.58.4, ...]` (for as many worker nodes as are configured).
@@ -73,7 +40,6 @@ Additionally, you can check that all nodes are correctly added to the cluster:
 vagrant ssh controller -c "sudo microk8s kubectl get nodes -o wide"
 ```
 If a node doesn't show up running `vagrant provision` again should fix the problem.
-As previously mentioned, they don't always attach properly.
 
 ### Host-based Kubectl
 The Ansible setup retrieves the Kubectl config file which allows local Kubectl control over the cluster and stores it in the main directory under the name `microk8s-config`.

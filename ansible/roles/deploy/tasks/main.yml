@@ -79,7 +79,7 @@
   changed_when: false
 
 - name: Check for Ingress
-  ansible.builtin.shell: microk8s kubectl get ingress | grep app-ingress
+  ansible.builtin.shell: microk8s kubectl get ingress | grep ingress-app
   register: ingress_check
   failed_when: ingress_check.rc != 0
   changed_when: false
