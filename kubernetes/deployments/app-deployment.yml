@@ -22,6 +22,6 @@ spec:
             - name: MODEL_SERVICE_URL
               valueFrom:
                 configMapKeyRef:
-                  name: my-config
+                  name: model-service-config
                   key: model.service.url
           command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
