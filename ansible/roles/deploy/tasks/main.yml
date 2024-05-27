@@ -1,25 +1,10 @@
-- name: Check for ConfigMap
-  ansible.builtin.shell: microk8s kubectl get configmap | grep model-service-config
-  register: configmap_check
-  failed_when: configmap_check.rc != 0
-  changed_when: false
-  ignore_errors: true
-
 - name: Apply Model Service ConfigMap
   ansible.builtin.command:
     cmd: microk8s kubectl apply -f /tmp/kubernetes/configmaps/model-service-configmap.yml
   environment:
     KUBECONFIG: /vagrant/microk8s-config
   become: true
-  when: configmap_check.failed
   changed_when: false
-
-- name: Check for Model Service Deployment
-  ansible.builtin.shell: microk8s kubectl get deployments | grep model-service-depl
-  register: model_service_check
-  failed_when: model_service_check.rc != 0
-  changed_when: false
-  ignore_errors: true
 
 - name: Apply Model Service Deployment
   ansible.builtin.command:
@@ -30,13 +15,6 @@
   when: model_service_check.failed
   changed_when: false
 
-- name: Check for Model Service Service
-  ansible.builtin.shell: microk8s kubectl get services | grep model-service-serv
-  register: model_service_service_check
-  failed_when: model_service_service_check.rc != 0
-  changed_when: false
-  ignore_errors: true
-
 - name: Apply Model Service
   ansible.builtin.command:
     cmd: microk8s kubectl apply -f /tmp/kubernetes/services/model-service-service.yml
@@ -45,13 +23,6 @@
   become: true
   when: model_service_service_check.failed
   changed_when: false
-
-- name: Check for App Deployment
-  ansible.builtin.shell: microk8s kubectl get deployments | grep app-depl
-  register: app_check
-  failed_when: app_check.rc != 0
-  changed_when: false
-  ignore_errors: true
 
 - name: Apply App Deployment
   ansible.builtin.command:
@@ -62,13 +33,6 @@
   when: app_check.failed
   changed_when: false
 
-- name: Check for App Service
-  ansible.builtin.shell: microk8s kubectl get services | grep app-serv
-  register: app_service_check
-  failed_when: app_service_check.rc != 0
-  changed_when: false
-  ignore_errors: true
-
 - name: Apply App Service
   ansible.builtin.command:
     cmd: microk8s kubectl apply -f /tmp/kubernetes/services/app-service.yml
@@ -77,13 +41,6 @@
   become: true
   when: app_service_check.failed
   changed_when: false
-
-- name: Check for Ingress
-  ansible.builtin.shell: microk8s kubectl get ingress | grep ingress-app
-  register: ingress_check
-  failed_when: ingress_check.rc != 0
-  changed_when: false
-  ignore_errors: true
 
 - name: Apply Ingress
   ansible.builtin.command:
