@@ -58,13 +58,13 @@ Created PR:
 Approved PR: 
 
 -- Arjan Hasami: --  
-Created PR:   
+Created PR: https://github.com/remla24-02/model-training/pull/9  
 Approved PR: 
 
 -- Nada Mouman: --  
-Created PR: 
-Approved PR: 
+Created PR: https://github.com/remla24-02/model-training/pull/8  
+Approved PR: https://github.com/remla24-02/model-training/pull/6, https://github.com/remla24-02/model-training/pull/7
 
 -- Thijs Penning: --  
 Created PR: https://github.com/remla24-02/model-training/pull/6, https://github.com/remla24-02/model-training/pull/7  
-Approved PR: 
+Approved PR: https://github.com/remla24-02/model-training/pull/9
