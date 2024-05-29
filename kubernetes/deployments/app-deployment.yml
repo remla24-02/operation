@@ -24,4 +24,6 @@ spec:
                 configMapKeyRef:
                   name: model-service-config
                   key: model.service.url
+            - name: ALLOWED_HOSTS
+              value: app.local
           command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]

@@ -3,6 +3,8 @@ kind: PrometheusRule
 metadata:
   name: prometheus-rules
   namespace: monitoring
+  labels:
+    role: alert-rules
 spec:
   groups:
     - name: app_rules
@@ -14,6 +16,7 @@ spec:
             severity: critical
           annotations:
             summary: High request rate
+            description: Request rate is above 15 for more than 2 minutes.
         - alert: HighMemoryUsage
           expr: node_memory_Active_bytes / node_memory_MemTotal_bytes * 100 > 90
           for: 2m

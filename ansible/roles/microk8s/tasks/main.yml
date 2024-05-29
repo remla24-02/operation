@@ -15,6 +15,13 @@
     state: present
   when: microk8s_check.failed
 
+- name: Allow iptables FORWARD policy
+  ansible.posix.sysctl:
+    name: net.ipv4.ip_forward
+    value: 1
+    state: present
+    reload: true
+
 - name: Start MicroK8s
   ansible.builtin.command: microk8s start
   changed_when: false

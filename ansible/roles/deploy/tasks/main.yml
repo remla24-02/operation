@@ -12,7 +12,6 @@
   environment:
     KUBECONFIG: /vagrant/microk8s-config
   become: true
-  when: model_service_check.failed
   changed_when: false
 
 - name: Apply Model Service
@@ -21,7 +20,6 @@
   environment:
     KUBECONFIG: /vagrant/microk8s-config
   become: true
-  when: model_service_service_check.failed
   changed_when: false
 
 - name: Apply App Deployment
@@ -30,7 +28,6 @@
   environment:
     KUBECONFIG: /vagrant/microk8s-config
   become: true
-  when: app_check.failed
   changed_when: false
 
 - name: Apply App Service
@@ -39,14 +36,12 @@
   environment:
     KUBECONFIG: /vagrant/microk8s-config
   become: true
-  when: app_service_check.failed
   changed_when: false
 
-- name: Apply Ingress
+- name: Apply App Ingress
   ansible.builtin.command:
-    cmd: microk8s kubectl apply -f /tmp/kubernetes/ingress/ingress.yml
+    cmd: microk8s kubectl apply -f /tmp/kubernetes/ingress/app-ingress.yml
   environment:
     KUBECONFIG: /vagrant/microk8s-config
   become: true
-  when: ingress_check.failed
   changed_when: false

@@ -30,9 +30,10 @@ This command creates all the nodes, installs everything on them and start the cl
 The specific node configuration is defined in the Vagrantfile (IP, workers, cores, and memory).
 Currently, the controller node is available at `192.168.58.2` and the worked nodes at `[192.168.58.3, 192.168.58.4, ...]` (for as many worker nodes as are configured).
 You can check if the nodes are up and running with this command:
-(Sometimes the ping command fails in the main directory, in that case, run it in the ansible directory with a correct inventory path.)
+(chmod only required once to make the file executable)
 ``` console
-ansible all -m ping -i ansible/inventory.cfg
+chmod +x ping.sh 
+./ping.sh
 ```
 Additionally, you can check that all nodes are correctly added to the cluster:
 (This requires Kubectl mentioned in the next part, where you can even run this command locally.)
@@ -62,7 +63,27 @@ You can move the file and change the path however you like.
 With this export of direct definition you can control the cluster from your localhost. 
 
 ## Usage
-Once the application has been deployed, you can go to http://localhost:8000/
+Once the application has been deployed, you can add these lines to your `/etc/hosts` (Linux) or `C:\Windows\System32\drivers\etc\hosts` (Windows)
+```
+192.168.58.3 app.local
+192.168.58.3 prometheus.local
+192.168.58.3 grafana.local
+```
+
+After which you can access the web application at [app.local](app.local)
+The Prometheus dashboard at [prometheus.local](prometheus.local)
+And the Grafana dashboard at [grafana.local](grafana.local)
+
+It might take a while for all services to be available.
+In case it takes a very long time, run the provisioning again to make sure everything got set up correctly.
+
+``` console
+vagrant provision
+```
+
+#### Grafana credentials:
+- username: admin
+- password: prom-operator
 
 ## Kubernetes
 
