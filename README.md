@@ -1,26 +1,17 @@
 # operation
 
-## Project structure
+## Prerequisites
 
-TODO
+Make sure the following dependencies are installed and set up.
 
-## Running the project
-
-### Docker
-To run the project, first log in to GitHub Package Registry:
-
-```
-docker login ghcr.io
-```
-
-Then you can deploy the application by running:
-
-```
-docker compose up
-```
+- [Docker](https://docs.docker.com/engine/install/)
+- [Kubectl](https://k8s-docs.netlify.app/en/docs/tasks/tools/install-kubectl/)
+- [minikube](https://minikube.sigs.k8s.io/docs/start/)
+- [Vagrant](https://www.vagrantup.com/) and a supported provider (e.g. [VirtualBox](https://www.virtualbox.org/))
+- [Ansible](https://www.ansible.com/)
 
 ## Provisioning
-We assume [Vagrant](https://www.vagrantup.com/), a supported provider (e.g. [VirtualBox](https://www.virtualbox.org/)), and [Ansible](https://www.ansible.com/) are installed.
+
 To set up/start the Vagrant nodes with the Ansible provisioning run:
 ``` console
 vagrant up
@@ -62,7 +53,7 @@ kubectl get nodes
 You can move the file and change the path however you like.
 With this export of direct definition you can control the cluster from your localhost. 
 
-## Usage
+### Usage
 Once the application has been deployed, you can add these lines to your `/etc/hosts` (Linux) or `C:\Windows\System32\drivers\etc\hosts` (Windows)
 ```
 192.168.58.3 app.local
@@ -87,15 +78,12 @@ vagrant provision
 
 ## Kubernetes
 
-### Requirements
-
-Make sure that [minikube](https://minikube.sigs.k8s.io/docs/start/) and [Docker](https://www.docker.com/) are installed and start a Kubernetes cluster by running:
+### Manual Deployment
+Start a Kubernetes cluster by running:
 
 ```
 minikube start --driver=docker
 ```
-
-### Manual Deployment
 
 Note: Make sure to have enabled the ingress addons by running:
 
@@ -123,4 +111,72 @@ To access the application via port 8000, you can run:
 kubectl port-forward svc/app-serv 8000:8000
 ```
 
+## Docker Compose
 
+### Docker
+To run the project, first log in to GitHub Package Registry:
+
+```
+docker login ghcr.io
+```
+
+Then you can deploy the application by running:
+
+```
+docker compose up
+```
+
+## Project structure
+
+``` console
+├── ansible                                 # Ansible configuration directory
+│   ├── group_vars                          # Variables for groups of hosts
+│   │   └── all.yml                         # Variables for all hosts
+│   ├── inventory.cfg                       # Inventory file defining hosts and groups              
+│   ├── provisioning.yml                    # Main playbook for provisioning
+│   └── roles                               # Ansible roles directory
+│       ├── deploy                          # Role for deployment tasks
+│       │   └── tasks               
+│       │       └── main.yml                # Tasks for deployment
+│       ├── host                            # Role for host configuration
+│       │   └── tasks               
+│       │       └── main.yml                # Tasks for host configuration
+│       ├── join                            # Role for joining nodes
+│       │   └── tasks               
+│       │       └── main.yml                # Tasks for joining nodes
+│       ├── microk8s                        # Role for MicroK8s installation
+│       │   └── tasks               
+│       │       └── main.yml                # Tasks for installing MicroK8s
+│       ├── prometheus                      # Role for Prometheus setup
+│       │   └── tasks               
+│       │       └── main.yml                # Tasks for setting up Prometheus
+│       └── setup                           # General setup role
+│           └── tasks               
+│               └── main.yml                # General setup tasks
+├── docker-compose.yml                      # Docker Compose configuration file
+├── docs                                    # Documentation directory
+│   └── ACTIVITY.md                         # Activity log or documentation file
+├── kubernetes                              # Kubernetes configuration directory
+│   ├── configmaps                          # ConfigMap resources
+│   │   ├── model-service-configmap.yml     # ConfigMap for model service
+│   │   └── prometheus-configmap.yml        # ConfigMap for Prometheus
+│   ├── deployments                         # Deployment resources
+│   │   ├── app-deployment.yml              # Deployment for the app
+│   │   └── model-service-deployment.yml    # Deployment for the model service
+│   ├── helm                                # Helm chart configurations
+│   │   └── prometheus-values.yml           # Values file for Prometheus Helm chart
+│   ├── ingress                             # Ingress resources
+│   │   ├── app-ingress.yml                 # Ingress for the app
+│   │   ├── grafana-ingress.yml             # Ingress for Grafana
+│   │   └── prometheus-ingress.yml          # Ingress for Prometheus
+│   ├── rules                               # Rules configurations
+│   │   └── prometheus-rules.yml            # Prometheus alerting rules
+│   └── services                            # Service resources
+│       ├── app-service.yml                 # Service for the app
+│       └── model-service-service.yml       # Service for the model service
+├── LICENSE                                 # License file
+├── microk8s-config                         # MicroK8s configuration file
+├── ping.sh                                 # Shell script for pinging services or hosts
+├── README.md                               # Readme file with project information
+└── Vagrantfile                             # Vagrant configuration file
+```
