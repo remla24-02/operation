@@ -68,3 +68,21 @@ Approved PR: https://github.com/remla24-02/model-training/pull/6, https://github
 -- Thijs Penning: --  
 Created PR: https://github.com/remla24-02/model-training/pull/6, https://github.com/remla24-02/model-training/pull/7  
 Approved PR: https://github.com/remla24-02/model-training/pull/9
+
+
+# A5:
+-- Rodin Haker: --  
+Created PR:   
+Approved PR: 
+
+-- Arjan Hasami: --  
+Created PR:   
+Approved PR: 
+
+-- Nada Mouman: --  
+Created PR:   
+Approved PR: 
+
+-- Thijs Penning: --  
+Created PR: https://github.com/remla24-02/app/pull/5  
+Approved PR: 
