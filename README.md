@@ -4,11 +4,14 @@
 
 Make sure the following dependencies are installed and set up.
 
-- [Docker](https://docs.docker.com/engine/install/)
+Automatic deployment:
 - [Kubectl](https://k8s-docs.netlify.app/en/docs/tasks/tools/install-kubectl/)
-- [minikube](https://minikube.sigs.k8s.io/docs/start/)
 - [Vagrant](https://www.vagrantup.com/) and a supported provider (e.g. [VirtualBox](https://www.virtualbox.org/))
 - [Ansible](https://www.ansible.com/)
+
+Manual deployment
+- [Docker](https://docs.docker.com/engine/install/)
+- [minikube](https://minikube.sigs.k8s.io/docs/start/)
 
 ## Provisioning
 
@@ -26,6 +29,7 @@ You can check if the nodes are up and running with this command:
 chmod +x ping.sh 
 ./ping.sh
 ```
+
 Additionally, you can check that all nodes are correctly added to the cluster:
 (This requires Kubectl mentioned in the next part, where you can even run this command locally.)
 ``` console
@@ -42,13 +46,13 @@ You are free to add these to your bash scripts or just link to them for single s
 To use the host-based Kubectl we assume that [Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/) (other sources exist) is installed.
 The kubeconfig file can be mentioned directly with commands like this:
 ``` console
-kubectl get nodes --kubeconfig microk8s-config
+kubectl get nodes -o "wide" --kubeconfig microk8s-config
 ```
 Or it can be linked for the current shell, this will reset for a new shell:
 (Linux command in the example)
 ``` console
 export KUBECONFIG=microk8s-config
-kubectl get nodes
+kubectl get nodes -o "wide"
 ```
 You can move the file and change the path however you like.
 With this export of direct definition you can control the cluster from your localhost. 
@@ -72,13 +76,20 @@ In case it takes a very long time, run the provisioning again to make sure every
 vagrant provision
 ```
 
+Helm sometimes gets stuck in the Prometheus upgrade, step `TASK [prometheus : Install/upgrade Prometheus using microk8s helm]`, to fix this run:
+``` console
+vagrant ssh controller -c "sudo microk8s helm rollback prometheus -n monitoring"
+vagrant ssh controller -c "sudo microk8s helm uninstall prometheus -n monitoring"
+vagrant provision
+```
+
 #### Grafana credentials:
 - username: admin
 - password: prom-operator
 
-## Kubernetes
+## Manual deployment
 
-### Manual Deployment
+### Kubernetes
 Start a Kubernetes cluster by running:
 
 ```
@@ -105,15 +116,13 @@ minikube tunnel
 
 After this, you can access the application by going to http://localhost
 
-To access the application via port 8000, you can run:
+To access the application via port 5000, you can run:
 
 ```
-kubectl port-forward svc/app-serv 8000:8000
+kubectl port-forward svc/app-serv 5000:5000
 ```
 
-## Docker Compose
-
-### Docker
+### Docker Compose
 To run the project, first log in to GitHub Package Registry:
 
 ```
@@ -125,6 +134,9 @@ Then you can deploy the application by running:
 ```
 docker compose up
 ```
+
+If you wish to run a different version that the latest change the image tag in the `docker-compose.yml` file.
+The available package versions can be found [here](https://github.com/orgs/remla24-02/packages).
 
 ## Project structure
 
@@ -175,7 +187,7 @@ docker compose up
 │       ├── app-service.yml                 # Service for the app
 │       └── model-service-service.yml       # Service for the model service
 ├── LICENSE                                 # License file
-├── microk8s-config                         # MicroK8s configuration file
+├── microk8s-config                         # (Non-git) MicroK8s configuration file
 ├── ping.sh                                 # Shell script for pinging services or hosts
 ├── README.md                               # Readme file with project information
 └── Vagrantfile                             # Vagrant configuration file
