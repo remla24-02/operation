@@ -5,21 +5,41 @@
 Make sure the following dependencies are installed and set up.
 
 Automatic deployment:
+
 - [Kubectl](https://k8s-docs.netlify.app/en/docs/tasks/tools/install-kubectl/)
 - [Vagrant](https://www.vagrantup.com/) and a supported provider (e.g. [VirtualBox](https://www.virtualbox.org/))
 - [Ansible](https://www.ansible.com/)
 
 Manual deployment
+
 - [Docker](https://docs.docker.com/engine/install/)
 - [minikube](https://minikube.sigs.k8s.io/docs/start/)
 
 ## Provisioning
+
+### Addons (Optional)
+Available addons:
+- [Kiali](https://kiali.io/)
+- [Jaeger](https://www.jaegertracing.io/)
+- [Prometheus](https://prometheus.io/)
+- [Grafana](https://grafana.com/)
+
+These are enabled by default. To disable them set `enable_addons: false` in `ansible/group_vars/all.yml`
+
+### Set up
 
 To set up/start the Vagrant nodes with the Ansible provisioning run:
 ``` console
 vagrant up
 ```
 This command creates all the nodes, installs everything on them and start the cluster in the control node.
+
+In case Vagrant does not set up the virtual machines properly, destroy them and rerun the command.
+
+``` console
+vagrant destroy
+vagrant up
+```
 
 The specific node configuration is defined in the Vagrantfile (IP, workers, cores, and memory).
 Currently, the controller node is available at `192.168.58.2` and the worked nodes at `[192.168.58.3, 192.168.58.4, ...]` (for as many worker nodes as are configured).
@@ -29,21 +49,11 @@ You can check if the nodes are up and running with this command:
 chmod +x ping.sh 
 ./ping.sh
 ```
-
 Additionally, you can check that all nodes are correctly added to the cluster:
 (This requires Kubectl mentioned in the next part, where you can even run this command locally.)
 ``` console
 vagrant ssh controller -c "sudo microk8s kubectl get nodes -o wide"
 ```
-
-If a node doesn't show up running `vagrant provision` again should fix the problem.
-Helm sometimes gets stuck in the Prometheus upgrade, step `TASK [prometheus : Install/upgrade Prometheus using microk8s helm]`, to fix this run:
-``` console
-vagrant ssh controller -c "sudo microk8s helm rollback prometheus -n monitoring"
-vagrant ssh controller -c "sudo microk8s helm uninstall prometheus -n monitoring"
-vagrant provision
-```
-Restart your device or destroy and re-create the nodes is this problems keeps happening.
 
 ### Host-based Kubectl
 The Ansible setup retrieves the Kubectl config file which allows local Kubectl control over the cluster and stores it in the main directory under the name `microk8s-config`.
@@ -51,47 +61,54 @@ As the operating systems differ in how they define their kubeconfig we just prov
 (For Linux there is a commented method that can move it directly into their `~/.kube` folder.)
 You are free to add these to your bash scripts or just link to them for single shells.
 
-
+To use the host-based Kubectl we assume that [Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/) (other sources exist) is installed.
 The kubeconfig file can be mentioned directly with commands like this:
 ``` console
-kubectl get nodes -o "wide" --kubeconfig microk8s-config
+kubectl get nodes --kubeconfig microk8s-config
 ```
 Or it can be linked for the current shell, this will reset for a new shell:
 (Linux command in the example)
 ``` console
 export KUBECONFIG=microk8s-config
-kubectl get nodes -o "wide"
+kubectl get nodes
 ```
 You can move the file and change the path however you like.
 With this export of direct definition you can control the cluster from your localhost. 
 
 ### Usage
-Once the application has been deployed, you can add these lines to your `/etc/hosts` (Linux), `C:\Windows\System32\drivers\etc\hosts` (Windows), or `private/etc/hosts` (macOS).
+Once the application has been deployed, you can add these lines to your `/etc/hosts` (Linux) or `C:\Windows\System32\drivers\etc\hosts` (Windows)
 ```
-192.168.58.3 app.local
-192.168.58.3 prometheus.local
-192.168.58.3 grafana.local
+<IP> app.local
+<IP> prometheus.local
+<IP> grafana.local
+<IP> kiali.local
+<IP> kubernetes.local
 ```
 
-After which you can access the web application at [app.local](app.local)
-The Prometheus dashboard at [prometheus.local](prometheus.local)
-And the Grafana dashboard at [grafana.local](grafana.local)
+Where `<IP>` is the IP address returned by the following command (likely 192.168.58.240):
+```
+kubectl get service istio-ingressgateway -n istio-system -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+```
 
-It might take a while for all services to be available like with the nodes from before.
-In case it takes a very long time, run the provisioning again to make sure everything got set up correctly.
-Again Helm might get stuck but follow the previous explanation again in that case.
+After which you can access the several services:
+- [Web App](app.local): The phishing URL predictor
+- [Prometheus](prometheus.local): Monitoring system
+- [Grafana](grafana.local): Graphical interface to display the metrics generated by the cluster
+- [Kiali](kiali.local): Visualises the service mesh (Istio)
+- [Kubernetes Dashboard](https://kubernetes.local): Visualises the kubernetes cluster (Note: this is a HTTPS connection)
+
+To log into the Kubernetes Dashboard you need a token. This token can be obtained like this:
 
 ``` console
-vagrant provision
+kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | awk '/^microk8s-dashboard-token-/{print $1}') | awk '$1=="token:"{print $2}'
 ```
 
-#### Grafana credentials:
-- username: admin
-- password: prom-operator
+#### Sticky sessions
+The web application has sticky sessions enabled. This means you will either get the stable release or the canary release. If you'd like to test this, remove the cookies before refreshing. You might need to do this multiple times as the canary build will only show 10% of the time.
 
-## Manual deployment
+## Kubernetes
 
-### Kubernetes
+### Manual Deployment
 Start a Kubernetes cluster by running:
 
 ```
@@ -124,7 +141,9 @@ To access the application via port 5000, you can run:
 kubectl port-forward svc/app-serv 5000:5000
 ```
 
-### Docker Compose
+## Docker Compose
+
+### Docker
 To run the project, first log in to GitHub Package Registry:
 
 ```
@@ -137,60 +156,50 @@ Then you can deploy the application by running:
 docker compose up
 ```
 
-If you wish to run a different version that the latest change the image tag in the `docker-compose.yml` file.
-The available package versions can be found [here](https://github.com/orgs/remla24-02/packages).
-
 ## Project structure
 
 ``` console
-├── ansible                                 # Ansible configuration directory
-│   ├── group_vars                          # Variables for groups of hosts
-│   │   └── all.yml                         # Variables for all hosts
-│   ├── inventory.cfg                       # Inventory file defining hosts and groups              
-│   ├── provisioning.yml                    # Main playbook for provisioning
-│   └── roles                               # Ansible roles directory
-│       ├── deploy                          # Role for deployment tasks
-│       │   └── tasks               
-│       │       └── main.yml                # Tasks for deployment
-│       ├── host                            # Role for host configuration
-│       │   └── tasks               
-│       │       └── main.yml                # Tasks for host configuration
-│       ├── join                            # Role for joining nodes
-│       │   └── tasks               
-│       │       └── main.yml                # Tasks for joining nodes
-│       ├── microk8s                        # Role for MicroK8s installation
-│       │   └── tasks               
-│       │       └── main.yml                # Tasks for installing MicroK8s
-│       ├── prometheus                      # Role for Prometheus setup
-│       │   └── tasks               
-│       │       └── main.yml                # Tasks for setting up Prometheus
-│       └── setup                           # General setup role
-│           └── tasks               
-│               └── main.yml                # General setup tasks
-├── docker-compose.yml                      # Docker Compose configuration file
-├── docs                                    # Documentation directory
-│   └── ACTIVITY.md                         # Activity log or documentation file
-├── kubernetes                              # Kubernetes configuration directory
-│   ├── configmaps                          # ConfigMap resources
-│   │   ├── model-service-configmap.yml     # ConfigMap for model service
-│   │   └── prometheus-configmap.yml        # ConfigMap for Prometheus
-│   ├── deployments                         # Deployment resources
-│   │   ├── app-deployment.yml              # Deployment for the app
-│   │   └── model-service-deployment.yml    # Deployment for the model service
-│   ├── helm                                # Helm chart configurations
-│   │   └── prometheus-values.yml           # Values file for Prometheus Helm chart
-│   ├── ingress                             # Ingress resources
-│   │   ├── app-ingress.yml                 # Ingress for the app
-│   │   ├── grafana-ingress.yml             # Ingress for Grafana
-│   │   └── prometheus-ingress.yml          # Ingress for Prometheus
-│   ├── rules                               # Rules configurations
-│   │   └── prometheus-rules.yml            # Prometheus alerting rules
-│   └── services                            # Service resources
-│       ├── app-service.yml                 # Service for the app
-│       └── model-service-service.yml       # Service for the model service
-├── LICENSE                                 # License file
-├── microk8s-config                         # (Non-git) MicroK8s configuration file
-├── ping.sh                                 # Shell script for pinging services or hosts
-├── README.md                               # Readme file with project information
-└── Vagrantfile                             # Vagrant configuration file
+├── ansible                       # Ansible configuration directory
+│   ├── group_vars                # Directory for group variables
+│   │   └── all.yml               # Global variables for all hosts
+│   ├── inventory.cfg             # Ansible inventory configuration file
+│   ├── provisioning.yml          # Main playbook for provisioning
+│   └── roles                     # Directory for Ansible roles
+│       ├── addons                # Role for managing addons
+│       │   └── tasks
+│       │       └── main.yml      # Tasks for addons role
+│       ├── deploy                # Role for deploying applications
+│       │   └── tasks
+│       │       └── main.yml      # Tasks for deploy role
+│       ├── host                  # Role to get kube config 
+│       │   └── tasks
+│       │       └── main.yml      # Tasks for host role
+│       ├── join                  # Role for joining nodes to a cluster
+│       │   └── tasks
+│       │       └── main.yml      # Tasks for join role
+│       ├── microk8s              # Role for managing MicroK8s
+│       │   └── tasks
+│       │       └── main.yml      # Tasks for microk8s role
+│       └── setup                 # Role for initial setup
+│           └── tasks
+│               └── main.yml      # Tasks for setup role
+├── docker-compose.yml            # Docker Compose configuration file
+├── docs                          # Documentation directory
+│   └── ACTIVITY.md               # Documentation of activities
+├── kubernetes                    # Kubernetes configurations
+│   ├── addons                    # Addons configurations
+│   │   ├── grafana.yml
+│   │   ├── istio-gateway.yml
+│   │   ├── jaeger.yml
+│   │   ├── kiali.yml
+│   │   └── prometheus.yml
+│   ├── app.yml
+│   ├── gateway.yml
+│   ├── kubernetes-dashboard.yml
+│   └── model-service.yml
+├── LICENSE                       # License file
+├── ping.sh                       # Script to check connectivity
+├── README.md                     # Project README file
+└── Vagrantfile                   # Vagrant configuration file
+
 ```

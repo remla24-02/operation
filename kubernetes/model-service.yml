@@ -1,0 +1,112 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: model-service-stable
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: model-service
+      version: stable
+  template:
+    metadata:
+      labels:
+        app: model-service
+        version: stable
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "5001"
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+        - name: model-service
+          image: ghcr.io/remla24-02/model_service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5001
+          command: ["python", "./app/main.py"]
+          resources:
+            limits:
+              cpu: 500m
+              memory: "512Mi"
+            requests:
+              cpu: 200m
+              memory: "256Mi"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: model-service-canary
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: model-service
+      version: canary
+  template:
+    metadata:
+      labels:
+        app: model-service
+        version: canary
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "5001"
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+        - name: model-service
+          image: ghcr.io/remla24-02/model_service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5001
+          command: ["python", "./app/main.py"]
+          resources:
+            limits:
+              cpu: 500m
+              memory: "512Mi"
+            requests:
+              cpu: 200m
+              memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: model-service
+spec:
+  selector:
+    app: model-service
+  ports:
+    - port: 5001
+      targetPort: 5001
+      protocol: TCP
+      appProtocol: http
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: model-service-destination-rule
+spec:
+  host: model-service
+  subsets:
+    - name: stable
+      labels:
+        version: stable
+    - name: canary
+      labels:
+        version: canary
+  trafficPolicy:
+    loadBalancer:
+      consistentHash:
+        httpHeaderName: "user-cookie"
+    connectionPool:
+      tcp:
+        maxConnections: 100
+      http:
+        http1MaxPendingRequests: 100
+        maxRequestsPerConnection: 1
+    outlierDetection:
+      consecutiveErrors: 5
+      interval: 1s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 100

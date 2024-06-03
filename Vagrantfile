@@ -4,19 +4,19 @@ start_device = 2
 
 # The control node configuration
 controller_cores = 2
-controller_mem = 1024 * 4
+controller_mem = 1024 * 6
 
 # The worker nodes configuration
 workers = 2
 worker_cores = 2
-worker_mem = 1024 * 4
+worker_mem = 1024 * 6
 
 # Configure the VM
 Vagrant.configure("2") do |config|
     # The box and version used
     config.vm.box = "bento/ubuntu-24.04"
     config.vm.box_version = "202404.26.0"
-
+    
     # Define the controller node
     config.vm.define "controller" do |controller|
         controller.vm.hostname = "controller"

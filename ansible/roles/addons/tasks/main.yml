@@ -1,0 +1,166 @@
+- name: Apply Prometheus ConfigMap
+  kubernetes.core.k8s:
+    state: present
+    force: true
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        labels:
+          app.kubernetes.io/component: server
+          app.kubernetes.io/name: prometheus
+          app.kubernetes.io/instance: prometheus
+          app.kubernetes.io/version: v2.51.1
+          helm.sh/chart: prometheus-25.19.1
+          app.kubernetes.io/managed-by: Helm
+          app.kubernetes.io/part-of: prometheus
+        name: prometheus
+        namespace: istio-system
+      data:
+        allow-snippet-annotations: "false"
+        alerting_rules.yml: "{{ lookup('file', '{{ playbook_dir }}/../kubernetes/rules/alerting_rules.yml') }}"
+        alerts: |
+          {}
+        prometheus.yml: "{{ lookup('file', '{{ playbook_dir }}/../kubernetes/rules/prometheus.yml') }}"
+        recording_rules.yml: |
+          {}
+        rules: |
+          {}
+  environment:
+    KUBECONFIG: /vagrant/microk8s-config
+  vars:
+    ansible_python_interpreter: /opt/k8s_venv/bin/python3
+  become: true
+  changed_when: false
+
+- name: Deploy prometheus
+  ansible.builtin.command:
+    cmd: microk8s kubectl apply -f /tmp/kubernetes/addons/prometheus.yml
+  environment:
+    KUBECONFIG: /vagrant/microk8s-config
+  become: true
+  changed_when: false
+  register: addons_applied
+
+- name: Wait for Prometheus to be running
+  ansible.builtin.command:
+    cmd: |
+      microk8s kubectl rollout status deployment/prometheus -n istio-system
+  environment:
+    KUBECONFIG: /vagrant/microk8s-config
+  become: true
+  register: rollout_status
+  until: rollout_status.stdout.find("successfully rolled out") != -1
+  retries: 30
+  delay: 10
+  changed_when: false
+
+- name: Apply Grafana dashboards
+  kubernetes.core.k8s:
+    state: present
+    force: true
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        creationTimestamp: null
+        name: istio-grafana-dashboards
+        namespace: istio-system
+      data:
+        istio-performance-dashboard.json: "{{ lookup('file', '{{ playbook_dir }}/../kubernetes/addons/dashboards/istio/istio-performance-dashboard.json')
+          | minify_json_string | from_json | to_json }}"
+        pilot-dashboard.json: "{{ lookup('file', '{{ playbook_dir }}/../kubernetes/addons/dashboards/istio/pilot-dashboard.json')
+          | minify_json_string | from_json | to_json }}"
+  vars:
+    ansible_python_interpreter: /opt/k8s_venv/bin/python3
+  environment:
+    KUBECONFIG: /vagrant/microk8s-config
+
+- name: Apply Grafana Istio service dashboards
+  kubernetes.core.k8s:
+    state: present
+    force: true
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        creationTimestamp: null
+        name: istio-services-grafana-dashboards
+        namespace: istio-system
+      data:
+        istio-mesh-dashboard.json: "{{ lookup('file', '{{ playbook_dir }}/../kubernetes/addons/dashboards/istio/istio-mesh-dashboard.json')
+          | minify_json_string | from_json | to_json }}"
+        istio-service-dashboard.json: "{{ lookup('file', '{{ playbook_dir }}/../kubernetes/addons/dashboards/istio/istio-service-dashboard.json')
+          | minify_json_string | from_json | to_json }}"
+        istio-workload-dashboard.json: "{{ lookup('file', '{{ playbook_dir }}/../kubernetes/addons/dashboards/istio/istio-workload-dashboard.json')
+          | minify_json_string | from_json | to_json }}"
+  vars:
+    ansible_python_interpreter: /opt/k8s_venv/bin/python3
+  environment:
+    KUBECONFIG: /vagrant/microk8s-config
+
+- name: Deploy grafana
+  ansible.builtin.command:
+    cmd: microk8s kubectl apply -f /tmp/kubernetes/addons/grafana.yml
+  environment:
+    KUBECONFIG: /vagrant/microk8s-config
+  become: true
+  changed_when: false
+  register: addons_applied
+
+- name: Wait for grafana to be running
+  ansible.builtin.command:
+    cmd: |
+      microk8s kubectl rollout status deployment/grafana -n istio-system
+  environment:
+    KUBECONFIG: /vagrant/microk8s-config
+  become: true
+  register: rollout_status
+  until: rollout_status.stdout.find("successfully rolled out") != -1
+  retries: 30
+  delay: 10
+  changed_when: false
+
+- name: Deploy jaeger
+  ansible.builtin.command:
+    cmd: microk8s kubectl apply -f /tmp/kubernetes/addons/jaeger.yml
+  environment:
+    KUBECONFIG: /vagrant/microk8s-config
+  become: true
+  changed_when: false
+  register: addons_applied
+
+- name: Wait for jaeger to be running
+  ansible.builtin.command:
+    cmd: |
+      microk8s kubectl rollout status deployment/jaeger -n istio-system
+  environment:
+    KUBECONFIG: /vagrant/microk8s-config
+  become: true
+  register: rollout_status
+  until: rollout_status.stdout.find("successfully rolled out") != -1
+  retries: 30
+  delay: 10
+  changed_when: false
+
+- name: Deploy kiali
+  ansible.builtin.command:
+    cmd: microk8s kubectl apply -f /tmp/kubernetes/addons/kiali.yml
+  environment:
+    KUBECONFIG: /vagrant/microk8s-config
+  become: true
+  changed_when: false
+  register: addons_applied
+
+- name: Wait for kiali to be running
+  ansible.builtin.command:
+    cmd: |
+      microk8s kubectl rollout status deployment/kiali -n istio-system
+  environment:
+    KUBECONFIG: /vagrant/microk8s-config
+  become: true
+  register: rollout_status
+  until: rollout_status.stdout.find("successfully rolled out") != -1
+  retries: 30
+  delay: 10
+  changed_when: false

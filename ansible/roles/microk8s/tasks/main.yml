@@ -1,3 +1,38 @@
+- name: Ensure python3 and venv are installed
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - python3
+    - python3-venv
+
+- name: Create a virtual environment
+  ansible.builtin.command: python3 -m venv /opt/k8s_venv
+  args:
+    creates: /opt/k8s_venv/bin/activate
+
+- name: Install kubernetes Python client in virtual environment
+  ansible.builtin.command: /opt/k8s_venv/bin/pip install kubernetes
+  environment:
+    PIP_BREAK_SYSTEM_PACKAGES: "1"
+  changed_when: false
+
+- name: Ensure virtual environment is activated for subsequent tasks
+  ansible.builtin.lineinfile:
+    path: /etc/profile.d/k8s_venv.sh
+    line: "source /opt/k8s_venv/bin/activate"
+    create: true
+    mode: "0644"
+
+- name: Add virtual environment bin to PATH for system-wide access
+  ansible.builtin.lineinfile:
+    path: /etc/environment
+    line: "/opt/k8s_venv/bin"
+    create: true
+    mode: "0644"
+    state: present
+    insertafter: "PATH="
+
 - name: Update cache
   ansible.builtin.apt:
     update_cache: true

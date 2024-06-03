@@ -1,26 +1,28 @@
-- name: Enable dns
-  ansible.builtin.command: microk8s enable dns
+- name: Enable microk8s modules
+  ansible.builtin.command: microk8s enable {{ item }}
+  with_items:
+    - dns
+    - dashboard
+    - helm
+    - host-access
+    - ingress
+    - community
+    - istio
+  become: true
   changed_when: false
+  register: enabled_microk8s_modules
+  until: enabled_microk8s_modules.rc == 0
+  retries: 3
 
-- name: Enable dashboard
-  ansible.builtin.command: microk8s enable dashboard
+- name: Enable MetalLB
+  ansible.builtin.command: "microk8s enable metallb {{ ip_range }}"
+  become: true
   changed_when: false
-
-- name: Enable Helm
-  ansible.builtin.command: microk8s enable helm
-  changed_when: false
-
-- name: Enable host access
-  ansible.builtin.command: microk8s enable host-access
-  changed_when: false
-
-- name: Enable ingress
-  ansible.builtin.command: microk8s enable ingress
-  changed_when: false
-
-# For a later assignment (not tested yet, don't just activate)
-# - name: Enable Istio
-#   command: sudo microk8s enable istio
+  register: enabled_metallb
+  until: enabled_metallb.rc == 0
+  retries: 3
+  vars:
+    ip_range: "192.168.58.240-192.168.58.250"
 
 - name: Copy Kubernetes directory to target hosts
   ansible.builtin.copy:
@@ -31,13 +33,29 @@
     mode: "0755"
   become: true
 
-- name: Check for monitoring namespace
-  ansible.builtin.command: microk8s kubectl get namespace monitoring
-  register: monitoring_namespace_check
-  ignore_errors: true
+- name: Enable Istio sidecar injection
+  ansible.builtin.command: microk8s kubectl label namespace default istio-injection=enabled
+  become: true
   changed_when: false
+  register: istio_injection_enabled
+  until: istio_injection_enabled.rc == 0
+  retries: 3
 
-- name: Create monitoring namespace
-  ansible.builtin.command: microk8s kubectl create namespace monitoring
-  when: monitoring_namespace_check.failed
+- name: Apply Istio Gateways
+  ansible.builtin.command: microk8s kubectl apply -f /tmp/kubernetes/{{ item }}
+  with_items:
+    - gateway.yml
+    - addons/istio-gateway.yml
+  become: true
   changed_when: false
+  register: gateway_applied
+  until: gateway_applied.rc == 0
+  retries: 3
+
+- name: Enable kubernetes dashboard
+  ansible.builtin.command: microk8s kubectl apply -f /tmp/kubernetes/kubernetes-dashboard.yml
+  become: true
+  changed_when: false
+  register: dashboard_applied
+  until: dashboard_applied.rc == 0
+  retries: 3
