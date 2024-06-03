@@ -103,6 +103,9 @@ To log into the Kubernetes Dashboard you need a token. This token can be obtaine
 kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | awk '/^microk8s-dashboard-token-/{print $1}') | awk '$1=="token:"{print $2}'
 ```
 
+#### Sticky sessions
+The web application has sticky sessions enabled. This means you will either get the stable release or the canary release. If you'd like to test this, remove the cookies before refreshing. You might need to do this multiple times as the canary build will only show 10% of the time.
+
 ## Kubernetes
 
 ### Manual Deployment
