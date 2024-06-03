@@ -97,7 +97,8 @@ spec:
         version: canary
   trafficPolicy:
     loadBalancer:
-      simple: ROUND_ROBIN
+      consistentHash:
+        httpHeaderName: "user-cookie"
     connectionPool:
       tcp:
         maxConnections: 100
