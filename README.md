@@ -43,6 +43,7 @@ vagrant ssh controller -c "sudo microk8s helm rollback prometheus -n monitoring"
 vagrant ssh controller -c "sudo microk8s helm uninstall prometheus -n monitoring"
 vagrant provision
 ```
+Restart your device or destroy and re-create the nodes is this problems keeps happening.
 
 ### Host-based Kubectl
 The Ansible setup retrieves the Kubectl config file which allows local Kubectl control over the cluster and stores it in the main directory under the name `microk8s-config`.
