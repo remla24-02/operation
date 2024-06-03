@@ -1,18 +1,23 @@
 - name: Generate join command
-  command: microk8s add-node
+  ansible.builtin.command: "microk8s add-node"
   register: join_command
   delegate_to: controller
-  ignore_unreachable: yes
+  ignore_unreachable: false
+  changed_when: false
 
 - name: Check join command
-  set_fact:
+  ansible.builtin.set_fact:
     join_command_available: "{{ not join_command.unreachable is defined | default(true) }}"
+  when: join_command.rc == 0
+  changed_when: false
 
 - name: Extract join command
-  set_fact:
+  ansible.builtin.set_fact:
     join_command: "{{ join_command.stdout_lines | select('search', 'microk8s join ' ~ controller_ip) | list | first }} --worker"
   when: join_command_available
+  changed_when: false
 
 - name: Run join command
-  command: "{{ join_command }}"
+  ansible.builtin.command: "{{ join_command }}"
   when: join_command_available
+  changed_when: false

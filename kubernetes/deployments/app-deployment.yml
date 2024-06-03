@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app
+  template:
+    metadata:
+      labels:
+        app: app
+    spec:
+      containers:
+        - name: app
+          image: ghcr.io/remla24-02/app:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          env:
+            - name: MODEL_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: model-service-config
+                  key: model.service.url
+            - name: ALLOWED_HOSTS
+              value: app.local
+          command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]

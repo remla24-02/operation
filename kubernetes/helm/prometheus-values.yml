@@ -1,0 +1,7 @@
+prometheus:
+  server:
+    configMapOverrideName: prometheus-config
+    prometheusSpec:
+      ruleSelector:
+        matchLabels:
+          role: alert-rules

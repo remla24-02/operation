@@ -1,0 +1,47 @@
+- name: Apply Model Service ConfigMap
+  ansible.builtin.command:
+    cmd: microk8s kubectl apply -f /tmp/kubernetes/configmaps/model-service-configmap.yml
+  environment:
+    KUBECONFIG: /vagrant/microk8s-config
+  become: true
+  changed_when: false
+
+- name: Apply Model Service Deployment
+  ansible.builtin.command:
+    cmd: microk8s kubectl apply -f /tmp/kubernetes/deployments/model-service-deployment.yml
+  environment:
+    KUBECONFIG: /vagrant/microk8s-config
+  become: true
+  changed_when: false
+
+- name: Apply Model Service
+  ansible.builtin.command:
+    cmd: microk8s kubectl apply -f /tmp/kubernetes/services/model-service-service.yml
+  environment:
+    KUBECONFIG: /vagrant/microk8s-config
+  become: true
+  changed_when: false
+
+- name: Apply App Deployment
+  ansible.builtin.command:
+    cmd: microk8s kubectl apply -f /tmp/kubernetes/deployments/app-deployment.yml
+  environment:
+    KUBECONFIG: /vagrant/microk8s-config
+  become: true
+  changed_when: false
+
+- name: Apply App Service
+  ansible.builtin.command:
+    cmd: microk8s kubectl apply -f /tmp/kubernetes/services/app-service.yml
+  environment:
+    KUBECONFIG: /vagrant/microk8s-config
+  become: true
+  changed_when: false
+
+- name: Apply App Ingress
+  ansible.builtin.command:
+    cmd: microk8s kubectl apply -f /tmp/kubernetes/ingress/app-ingress.yml
+  environment:
+    KUBECONFIG: /vagrant/microk8s-config
+  become: true
+  changed_when: false

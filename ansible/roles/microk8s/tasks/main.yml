@@ -1,18 +1,27 @@
 - name: Update cache
-  apt:
-    update_cache: yes
+  ansible.builtin.apt:
+    update_cache: true
 
 - name: Check MicroK8s
-  command: microk8s status --wait-ready
+  ansible.builtin.command: microk8s status --wait-ready
   register: microk8s_check
-  ignore_errors: yes
+  ignore_errors: true
+  changed_when: microk8s_check.rc == 0
 
 - name: Install MicroK8s
-  shell: snap install microk8s --classic
+  community.general.snap:
+    name: microk8s
+    classic: true
+    state: present
   when: microk8s_check.failed
 
+- name: Allow iptables FORWARD policy
+  ansible.posix.sysctl:
+    name: net.ipv4.ip_forward
+    value: 1
+    state: present
+    reload: true
+
 - name: Start MicroK8s
-  command: microk8s start
-  when: microk8s_check.rc == 0
-
-
+  ansible.builtin.command: microk8s start
+  changed_when: false

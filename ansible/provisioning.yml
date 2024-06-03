@@ -1,21 +1,49 @@
-- hosts: all
-  become: yes
+- name: Install MicroK8s on all hosts
+  hosts: all
+  become: true
+  serial: 1
   roles:
-    - role: microk8s
+    - { role: microk8s, tags: ["microk8s"] }
 
-- hosts: control
-  become: yes
+- name: Set up the control node
+  hosts: control
+  become: true
   roles:
-    - role: setup
-    - role: prometheus
-    - role: grafana
+    - { role: setup, tags: ["setup"] }
+    - { role: prometheus, tags: ["prometheus"] }
+    - { role: host, tags: ["host"] }
 
-- hosts: control
-  become: yes
-  roles:
-    - role: host
+- name: Join workers to the Kubernetes cluster
+  hosts: workers
+  become: true
+  tasks:
+    - name: Join node to the Kubernetes cluster
+      ansible.builtin.include_role:
+        name: join
+      tags: ["join"]
+    - name: Create success file on control node
+      ansible.builtin.file:
+        path: "/tmp/worker_{{ inventory_hostname }}_done"
+        state: touch
+        mode: '0644'
+      delegate_to: "{{ groups['control'][0] }}"
 
-- hosts: workers
-  become: yes
-  roles:
-    - role: join
+- name: Wait for all workers to join
+  hosts: control
+  become: true
+  tasks:
+    - name: Ensure all workers have joined
+      ansible.builtin.wait_for:
+        path: "/tmp/worker_{{ item }}_done"
+        state: present
+        timeout: 600
+      with_items: "{{ groups['workers'] }}"
+
+- name: Deploy applications
+  hosts: control
+  become: true
+  tasks:
+    - name: Deploy applications
+      ansible.builtin.include_role:
+        name: deploy
+      tags: ["deploy"]

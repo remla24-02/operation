@@ -1,24 +1,43 @@
 - name: Enable dns
-  command: microk8s enable dns
+  ansible.builtin.command: microk8s enable dns
+  changed_when: false
 
 - name: Enable dashboard
-  command: microk8s enable dashboard
+  ansible.builtin.command: microk8s enable dashboard
+  changed_when: false
 
 - name: Enable Helm
-  command: microk8s enable helm
+  ansible.builtin.command: microk8s enable helm
+  changed_when: false
 
 - name: Enable host access
-  command: microk8s enable host-access
+  ansible.builtin.command: microk8s enable host-access
+  changed_when: false
+
+- name: Enable ingress
+  ansible.builtin.command: microk8s enable ingress
+  changed_when: false
 
 # For a later assignment (not tested yet, don't just activate)
-#- name: Enable Istio
-#  command: sudo microk8s enable istio
+# - name: Enable Istio
+#   command: sudo microk8s enable istio
+
+- name: Copy Kubernetes directory to target hosts
+  ansible.builtin.copy:
+    src: ../../../../kubernetes/
+    dest: /tmp/kubernetes/
+    owner: root
+    group: root
+    mode: "0755"
+  become: true
 
 - name: Check for monitoring namespace
-  command: microk8s kubectl get namespace monitoring
+  ansible.builtin.command: microk8s kubectl get namespace monitoring
   register: monitoring_namespace_check
   ignore_errors: true
+  changed_when: false
 
 - name: Create monitoring namespace
-  shell: microk8s kubectl create namespace monitoring
+  ansible.builtin.command: microk8s kubectl create namespace monitoring
   when: monitoring_namespace_check.failed
+  changed_when: false

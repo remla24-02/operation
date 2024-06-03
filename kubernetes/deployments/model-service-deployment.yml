@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: model-service-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: model-service
+  template:
+    metadata:
+      labels:
+        app: model-service
+    spec:
+      containers:
+        - name: model-service
+          image: ghcr.io/remla24-02/model_service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          command: ["python", "./app/main.py"]
