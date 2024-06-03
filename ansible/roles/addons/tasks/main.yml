@@ -1,6 +1,7 @@
 - name: Apply Prometheus ConfigMap
   kubernetes.core.k8s:
     state: present
+    force: true
     definition:
       apiVersion: v1
       kind: ConfigMap
@@ -57,6 +58,7 @@
 - name: Apply Grafana dashboards
   kubernetes.core.k8s:
     state: present
+    force: true
     definition:
       apiVersion: v1
       kind: ConfigMap
@@ -65,16 +67,10 @@
         name: istio-grafana-dashboards
         namespace: istio-system
       data:
-        istio-performance-dashboard.json: |
-           {{ lookup('file', '{{ playbook_dir }}/../kubernetes/addons/dashboards/istio/istio-performance-dashboard.json')
-             | to_json
-             | replace('\n', '')
-             | regex_replace('\s+', '') }}
-        pilot-dashboard.json: |
-          {{ lookup('file', '{{ playbook_dir }}/../kubernetes/addons/dashboards/istio/pilot-dashboard.json')
-            | to_json
-            | replace('\n', '')
-            | regex_replace('\s+', '') }}
+        istio-performance-dashboard.json: "{{ lookup('file', '{{ playbook_dir }}/../kubernetes/addons/dashboards/istio/istio-performance-dashboard.json')
+          | minify_json_string | from_json | to_json }}"
+        pilot-dashboard.json: "{{ lookup('file', '{{ playbook_dir }}/../kubernetes/addons/dashboards/istio/pilot-dashboard.json')
+          | minify_json_string | from_json | to_json }}"
   vars:
     ansible_python_interpreter: /opt/k8s_venv/bin/python3
   environment:
@@ -83,6 +79,7 @@
 - name: Apply Grafana Istio service dashboards
   kubernetes.core.k8s:
     state: present
+    force: true
     definition:
       apiVersion: v1
       kind: ConfigMap
@@ -91,21 +88,12 @@
         name: istio-services-grafana-dashboards
         namespace: istio-system
       data:
-        istio-mesh-dashboard.json: |
-           {{ lookup('file', '{{ playbook_dir }}/../kubernetes/addons/dashboards/istio/istio-mesh-dashboard.json')
-             | to_json
-             | replace('\n', '')
-             | regex_replace('\s+', '') }}
-        istio-service-dashboard.json: |
-          {{ lookup('file', '{{ playbook_dir }}/../kubernetes/addons/dashboards/istio/istio-service-dashboard.json')
-            | to_json
-            | replace('\n', '')
-            | regex_replace('\s+', '') }}
-        istio-workload-dashboard.json: |
-          {{ lookup('file', '{{ playbook_dir }}/../kubernetes/addons/dashboards/istio/istio-workload-dashboard.json')
-            | to_json
-            | replace('\n', '')
-            | regex_replace('\s+', '') }}
+        istio-mesh-dashboard.json: "{{ lookup('file', '{{ playbook_dir }}/../kubernetes/addons/dashboards/istio/istio-mesh-dashboard.json')
+          | minify_json_string | from_json | to_json }}"
+        istio-service-dashboard.json: "{{ lookup('file', '{{ playbook_dir }}/../kubernetes/addons/dashboards/istio/istio-service-dashboard.json')
+          | minify_json_string | from_json | to_json }}"
+        istio-workload-dashboard.json: "{{ lookup('file', '{{ playbook_dir }}/../kubernetes/addons/dashboards/istio/istio-workload-dashboard.json')
+          | minify_json_string | from_json | to_json }}"
   vars:
     ansible_python_interpreter: /opt/k8s_venv/bin/python3
   environment:

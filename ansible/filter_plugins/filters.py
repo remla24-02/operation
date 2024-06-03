@@ -1,14 +1,13 @@
 import json
 
 
-def to_minified_json(file_path):
-    with open(file_path, 'r') as f:
-        content = json.load(f)
-    return json.dumps(content, separators=(',', ':'))
+def minify_json_string(json_string):
+    res = json.loads(json_string)
+    return json.dumps(res, separators=(',', ':'))
 
 
 class FilterModule(object):
     def filters(self):
         return {
-            'to_minified_json': to_minified_json,
+            'minify_json_string': minify_json_string,
         }
