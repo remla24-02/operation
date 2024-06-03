@@ -50,7 +50,7 @@ As the operating systems differ in how they define their kubeconfig we just prov
 (For Linux there is a commented method that can move it directly into their `~/.kube` folder.)
 You are free to add these to your bash scripts or just link to them for single shells.
 
-To use the host-based Kubectl we assume that [Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/) (other sources exist) is installed.
+
 The kubeconfig file can be mentioned directly with commands like this:
 ``` console
 kubectl get nodes -o "wide" --kubeconfig microk8s-config
