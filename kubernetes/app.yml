@@ -39,7 +39,7 @@ spec:
                   name: model-service-config
                   key: model.service.url
             - name: ALLOWED_HOSTS
-              value: app.local
+              value: "app.local,10.1.49.17"
           command: ["python", "manage.py", "runserver", "0.0.0.0:5000"]
           resources:
             limits:
@@ -82,7 +82,7 @@ spec:
                   name: model-service-config
                   key: model.service.url
             - name: ALLOWED_HOSTS
-              value: app.local
+              value: "app.local,10.1.49.17"
           command: ["python", "manage.py", "runserver", "0.0.0.0:5000"]
           resources:
             limits:
