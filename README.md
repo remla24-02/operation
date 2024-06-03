@@ -35,7 +35,14 @@ Additionally, you can check that all nodes are correctly added to the cluster:
 ``` console
 vagrant ssh controller -c "sudo microk8s kubectl get nodes -o wide"
 ```
+
 If a node doesn't show up running `vagrant provision` again should fix the problem.
+Helm sometimes gets stuck in the Prometheus upgrade, step `TASK [prometheus : Install/upgrade Prometheus using microk8s helm]`, to fix this run:
+``` console
+vagrant ssh controller -c "sudo microk8s helm rollback prometheus -n monitoring"
+vagrant ssh controller -c "sudo microk8s helm uninstall prometheus -n monitoring"
+vagrant provision
+```
 
 ### Host-based Kubectl
 The Ansible setup retrieves the Kubectl config file which allows local Kubectl control over the cluster and stores it in the main directory under the name `microk8s-config`.
@@ -58,7 +65,7 @@ You can move the file and change the path however you like.
 With this export of direct definition you can control the cluster from your localhost. 
 
 ### Usage
-Once the application has been deployed, you can add these lines to your `/etc/hosts` (Linux) or `C:\Windows\System32\drivers\etc\hosts` (Windows)
+Once the application has been deployed, you can add these lines to your `/etc/hosts` (Linux), `C:\Windows\System32\drivers\etc\hosts` (Windows), or `private/etc/hosts` (macOS).
 ```
 192.168.58.3 app.local
 192.168.58.3 prometheus.local
@@ -69,17 +76,11 @@ After which you can access the web application at [app.local](app.local)
 The Prometheus dashboard at [prometheus.local](prometheus.local)
 And the Grafana dashboard at [grafana.local](grafana.local)
 
-It might take a while for all services to be available.
+It might take a while for all services to be available like with the nodes from before.
 In case it takes a very long time, run the provisioning again to make sure everything got set up correctly.
+Again Helm might get stuck but follow the previous explanation again in that case.
 
 ``` console
-vagrant provision
-```
-
-Helm sometimes gets stuck in the Prometheus upgrade, step `TASK [prometheus : Install/upgrade Prometheus using microk8s helm]`, to fix this run:
-``` console
-vagrant ssh controller -c "sudo microk8s helm rollback prometheus -n monitoring"
-vagrant ssh controller -c "sudo microk8s helm uninstall prometheus -n monitoring"
 vagrant provision
 ```
 
