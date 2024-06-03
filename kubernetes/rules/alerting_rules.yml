@@ -1,0 +1,51 @@
+groups:
+  - name: app-rules
+    rules:
+      - alert: HighRequestRate
+        expr: sum(rate(http_requests_total[2m])) by (instance) > 15
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High request rate detected"
+          description: "Instance {{ $labels.instance }} has a high request rate of > 100 requests per second over the last 5 minutes."
+      - alert: HighMemoryUsage
+        expr: node_memory_Active_bytes / node_memory_MemTotal_bytes * 100 > 90
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: High Memory Usage
+          description: Memory usage is above 90% for more than 2 minutes.
+      - alert: HighCPUUsage
+        expr: sum(rate(container_cpu_usage_seconds_total[2m])) by (instance) > 0.8
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High CPU usage detected"
+          description: "Instance {{ $labels.instance }} has high CPU usage above 80% for more than 2 minutes."
+      - alert: HighDiskUsage
+        expr: (node_filesystem_size_bytes{fstype!~"tmpfs|overlay"} - node_filesystem_free_bytes{fstype!~"tmpfs|overlay"}) / node_filesystem_size_bytes{fstype!~"tmpfs|overlay"} * 100 > 90
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High disk space usage detected"
+          description: "Instance {{ $labels.instance }} has disk space usage above 90%."
+      - alert: PodCrashLooping
+        expr: rate(kube_pod_container_status_restarts_total[5m]) > 3
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Pod crashing frequently"
+          description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} is restarting frequently."
+      - alert: HighLoadAverage
+        expr: node_load1 / count(node_cpu_seconds_total{mode="system"}) by (instance) > 1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High load average detected"
+          description: "Instance {{ $labels.instance }} has a high load average above the number of CPU cores for more than 2 minutes."

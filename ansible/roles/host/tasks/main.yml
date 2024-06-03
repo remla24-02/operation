@@ -7,18 +7,10 @@
   ansible.builtin.copy:
     content: "{{ controller_config.stdout }}"
     dest: /vagrant/microk8s-config
-    mode: '0600'
+    mode: "0600"
 
 - name: Fix kube config server address
   ansible.builtin.replace:
     path: /vagrant/microk8s-config
     regexp: 'server: https://127\.0\.0\.1:'
     replace: "server: https://{{ controller_ip }}:"
-# Option for Linux to move it directly in their .kube config folder
-# - name: Move kube config
-#   become: no
-#   copy:
-#     src: ../microk8s-config
-#     dest: /home/$USER/.kube/microk8s-config
-#   ignore_errors: yes
-#   delegate_to: localhost

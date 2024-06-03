@@ -1,0 +1,60 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: kubernetes-gateway
+  namespace: kube-system
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 443
+        name: https
+        protocol: HTTPS
+      hosts:
+        - "kubernetes.local"
+      tls:
+        mode: PASSTHROUGH
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: kubernetes
+  namespace: kube-system
+spec:
+  hosts:
+    - "kubernetes.local"
+  gateways:
+    - kubernetes-gateway
+  tls:
+    - match:
+        - port: 443
+          sniHosts:
+            - "kubernetes.local"
+      route:
+        - destination:
+            host: kubernetes-dashboard
+            port:
+              number: 443
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: kubernetes
+  namespace: kube-system
+spec:
+  host: kubernetes-dashboard
+  trafficPolicy:
+    loadBalancer:
+      simple: ROUND_ROBIN
+    connectionPool:
+      tcp:
+        maxConnections: 100
+      http:
+        http1MaxPendingRequests: 100
+        maxRequestsPerConnection: 1
+    outlierDetection:
+      consecutiveErrors: 5
+      interval: 1s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 100

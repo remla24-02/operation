@@ -1,0 +1,158 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: model-service-config
+data:
+  model.service.url: "http://model-service:5001"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-stable
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app
+      version: stable
+  template:
+    metadata:
+      labels:
+        app: app
+        version: stable
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "5000"
+    spec:
+      containers:
+        - name: app
+          image: ghcr.io/remla24-02/app:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5000
+          env:
+            - name: MODEL_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: model-service-config
+                  key: model.service.url
+            - name: ALLOWED_HOSTS
+              value: app.local
+          command: ["python", "manage.py", "runserver", "0.0.0.0:5000"]
+          resources:
+            limits:
+              cpu: 500m
+              memory: "512Mi"
+            requests:
+              cpu: 200m
+              memory: "256Mi"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-canary
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app
+      version: canary
+  template:
+    metadata:
+      labels:
+        app: app
+        version: canary
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "5000"
+    spec:
+      containers:
+        - name: app
+          image: ghcr.io/remla24-02/app:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5000
+          env:
+            - name: MODEL_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: model-service-config
+                  key: model.service.url
+            - name: ALLOWED_HOSTS
+              value: app.local
+          command: ["python", "manage.py", "runserver", "0.0.0.0:5000"]
+          resources:
+            limits:
+              cpu: 500m
+              memory: "512Mi"
+            requests:
+              cpu: 200m
+              memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app
+spec:
+  selector:
+    app: app
+  ports:
+    - port: 5000
+      targetPort: 5000
+      protocol: TCP
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: app-virtual-service
+spec:
+  gateways:
+    - my-gateway
+  hosts:
+    - "app.local"
+  http:
+    - match:
+        - uri:
+            prefix: /
+      route:
+        - destination:
+            host: app
+            subset: stable
+            port:
+              number: 5000
+          weight: 90
+        - destination:
+            host: app
+            subset: canary
+            port:
+              number: 5000
+          weight: 10
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: app-destination-rule
+spec:
+  host: app
+  subsets:
+    - name: stable
+      labels:
+        version: stable
+    - name: canary
+      labels:
+        version: canary
+  trafficPolicy:
+    loadBalancer:
+      simple: ROUND_ROBIN
+    connectionPool:
+      tcp:
+        maxConnections: 100
+      http:
+        http1MaxPendingRequests: 100
+        maxRequestsPerConnection: 1
+    outlierDetection:
+      consecutiveErrors: 5
+      interval: 1s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 100

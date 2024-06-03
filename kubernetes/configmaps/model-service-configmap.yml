@@ -1,6 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: model-service-config
-data:
-  model.service.url: "http://model-service-serv:8080"

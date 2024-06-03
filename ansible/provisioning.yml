@@ -9,9 +9,14 @@
   hosts: control
   become: true
   roles:
-    - { role: setup, tags: ["setup"] }
-    - { role: prometheus, tags: ["prometheus"] }
     - { role: host, tags: ["host"] }
+    - { role: setup, tags: ["setup"] }
+  tasks:
+    - name: Enable addons
+      ansible.builtin.include_role:
+        name: addons
+      tags: ["addons"]
+      when: enable_addons | default(true)
 
 - name: Join workers to the Kubernetes cluster
   hosts: workers
