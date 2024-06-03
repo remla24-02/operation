@@ -33,6 +33,14 @@
     mode: "0755"
   become: true
 
+- name: Enable Istio sidecar injection
+  ansible.builtin.command: microk8s kubectl label namespace default istio-injection=enabled
+  become: true
+  changed_when: false
+  register: istio_injection_enabled
+  until: istio_injection_enabled.rc == 0
+  retries: 3
+
 - name: Apply Istio Gateways
   ansible.builtin.command: microk8s kubectl apply -f /tmp/kubernetes/{{ item }}
   with_items:

@@ -17,6 +17,7 @@ spec:
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "5001"
+        sidecar.istio.io/inject: "true"
     spec:
       containers:
         - name: model-service
@@ -51,6 +52,7 @@ spec:
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "5001"
+        sidecar.istio.io/inject: "true"
     spec:
       containers:
         - name: model-service
@@ -78,6 +80,7 @@ spec:
     - port: 5001
       targetPort: 5001
       protocol: TCP
+      appProtocol: http
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule

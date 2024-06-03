@@ -11,7 +11,7 @@ kind: Deployment
 metadata:
   name: app-stable
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: app
@@ -24,10 +24,11 @@ spec:
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "5000"
+        sidecar.istio.io/inject: "true"
     spec:
       containers:
         - name: app
-          image: ghcr.io/remla24-02/app:latest
+          image: ghcr.io/remla24-02/app:v0.2.2
           imagePullPolicy: Always
           ports:
             - containerPort: 5000
@@ -66,6 +67,7 @@ spec:
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "5000"
+        sidecar.istio.io/inject: "true"
     spec:
       containers:
         - name: app
@@ -101,6 +103,7 @@ spec:
     - port: 5000
       targetPort: 5000
       protocol: TCP
+      appProtocol: http
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
@@ -113,9 +116,26 @@ spec:
     - "app.local"
   http:
     - match:
-        - uri:
-            prefix: /
+        - headers:
+            Cookie:
+              regex: .*userAffinity=stable.*
       route:
+        - destination:
+            host: app
+            subset: stable
+            port:
+              number: 5000
+    - match:
+        - headers:
+            Cookie:
+              regex: .*userAffinity=canary.*
+      route:
+        - destination:
+            host: app
+            subset: canary
+            port:
+              number: 5000
+    - route:
         - destination:
             host: app
             subset: stable
@@ -128,6 +148,10 @@ spec:
             port:
               number: 5000
           weight: 10
+          headers:
+            response:
+              set:
+                Set-Cookie: userAffinity=canary; Max-Age=3600000
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
@@ -136,23 +160,15 @@ metadata:
 spec:
   host: app
   subsets:
-    - name: stable
-      labels:
+    - labels:
         version: stable
-    - name: canary
-      labels:
+      name: stable
+      trafficPolicy:
+        loadBalancer:
+          consistentHash:
+            httpCookie:
+              name: userAffinity=stable
+              ttl: 1h
+    - labels:
         version: canary
-  trafficPolicy:
-    loadBalancer:
-      simple: ROUND_ROBIN
-    connectionPool:
-      tcp:
-        maxConnections: 100
-      http:
-        http1MaxPendingRequests: 100
-        maxRequestsPerConnection: 1
-    outlierDetection:
-      consecutiveErrors: 5
-      interval: 1s
-      baseEjectionTime: 30s
-      maxEjectionPercent: 100
+      name: canary
