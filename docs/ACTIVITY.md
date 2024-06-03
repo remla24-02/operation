@@ -73,7 +73,7 @@ Approved PR: https://github.com/remla24-02/model-training/pull/9
 # A5:
 -- Rodin Haker: --  
 Created PR: https://github.com/remla24-02/operation/pull/7
-Approved PR: 
+Approved PR: https://github.com/remla24-02/operation/pull/8
 
 -- Arjan Hasami: --  
 Created PR: https://github.com/remla24-02/operation/pull/8
