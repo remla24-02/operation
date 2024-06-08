@@ -34,8 +34,13 @@ vagrant up
 ```
 This command creates all the nodes, installs everything on them and start the cluster in the control node.
 
-In case Vagrant does not set up the virtual machines properly, destroy them and rerun the command.
+If a wait runs out of retries somewhere such as when waiting for deployment this could be due to the process needing a bit more time.
+Running provisioning again should be able to get past it now (don't cancel the step in up as these can just take a long time):
+``` console
+vagrant provision
+```
 
+In case Vagrant does not set up the virtual machines properly, destroy them and rerun the command.
 ``` console
 vagrant destroy
 vagrant up
@@ -61,22 +66,21 @@ As the operating systems differ in how they define their kubeconfig we just prov
 (For Linux there is a commented method that can move it directly into their `~/.kube` folder.)
 You are free to add these to your bash scripts or just link to them for single shells.
 
-To use the host-based Kubectl we assume that [Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/) (other sources exist) is installed.
 The kubeconfig file can be mentioned directly with commands like this:
 ``` console
-kubectl get nodes --kubeconfig microk8s-config
+kubectl get nodes -o wide --kubeconfig microk8s-config
 ```
 Or it can be linked for the current shell, this will reset for a new shell:
 (Linux command in the example)
 ``` console
 export KUBECONFIG=microk8s-config
-kubectl get nodes
+kubectl get nodes -o wide
 ```
 You can move the file and change the path however you like.
 With this export of direct definition you can control the cluster from your localhost. 
 
 ### Usage
-Once the application has been deployed, you can add these lines to your `/etc/hosts` (Linux) or `C:\Windows\System32\drivers\etc\hosts` (Windows)
+Once the application has been deployed, you can add these lines to your `/etc/hosts` (Linux), `C:\Windows\System32\drivers\etc\hosts` (Windows), or `private/etc/hosts` (macOS).
 ```
 <IP> app.local
 <IP> prometheus.local
@@ -85,7 +89,7 @@ Once the application has been deployed, you can add these lines to your `/etc/ho
 <IP> kubernetes.local
 ```
 
-Where `<IP>` is the IP address returned by the following command (likely 192.168.58.240):
+Where `<IP>` is the IP address returned by the following command (likely `192.168.58.240`):
 ```
 kubectl get service istio-ingressgateway -n istio-system -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
 ```

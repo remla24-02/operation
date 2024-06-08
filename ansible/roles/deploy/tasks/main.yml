@@ -20,7 +20,7 @@
   until: deployment_applied.rc == 0
   retries: 3
 
-- name: Wait for deployment to be running
+- name: Wait for deployment to be running (can take a long time)
   vars:
     services:
       - model-service-stable
