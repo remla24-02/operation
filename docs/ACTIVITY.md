@@ -72,17 +72,37 @@ Approved PR: https://github.com/remla24-02/model-training/pull/9
 
 # A5:
 -- Rodin Haker: --  
-Created PR: https://github.com/remla24-02/operation/pull/7
+Created PR: https://github.com/remla24-02/operation/pull/7  
 Approved PR: https://github.com/remla24-02/operation/pull/8
 
 -- Arjan Hasami: --  
-Created PR: https://github.com/remla24-02/operation/pull/8
+Created PR: https://github.com/remla24-02/operation/pull/8  
 Approved PR: https://github.com/remla24-02/operation/pull/7
 
 -- Nada Mouman: --  
-Created PR:  https://github.com/remla24-02/operation/pull/6
+Created PR: https://github.com/remla24-02/operation/pull/6  
 Approved PR: https://github.com/remla24-02/app/pull/5
 
 -- Thijs Penning: --  
 Created PR: https://github.com/remla24-02/app/pull/5  
 Approved PR: https://github.com/remla24-02/operation/pull/5
+
+
+# A6:
+-- Rodin Haker: --  
+Approved PR: https://github.com/remla24-02/operation/pull/9  
+Written section: Deployment Documentation  
+Reviewed section: Release Pipeline Documentation
+
+-- Arjan Hasami: --  
+Written section: Release Pipeline Documentation  
+Reviewed section: ML Testing, Additional Use Case (Istio)
+
+-- Nada Mouman: --  
+Created PR: https://github.com/remla24-02/operation/pull/9  
+Written section: ML Testing, Additional Use Case (Istio)  
+Reviewed section: Extension Proposal
+
+-- Thijs Penning: --  
+Written section: Extension Proposal  
+Reviewed section: Deployment Documentation
