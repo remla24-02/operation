@@ -34,11 +34,8 @@ vagrant up
 ```
 This command creates all the nodes, installs everything on them and start the cluster in the control node.
 
-If a wait runs out of retries somewhere such as when waiting for deployment this could be due to the process needing a bit more time.
-Running provisioning again should be able to get past it now (don't cancel the step in up as these can just take a long time):
-``` console
-vagrant provision
-```
+This command takes a long time to run as it ensures that everything is started up properly, don't cancel the command if it takes a while.
+The last step checking that the services are running has limited retries, if this runs out not everything has been started yet, wait a while before using the application.
 
 In case Vagrant does not set up the virtual machines properly, destroy them and rerun the command.
 ``` console
