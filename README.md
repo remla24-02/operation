@@ -51,7 +51,7 @@ Currently, the controller node is available at `192.168.58.2` and the worked nod
 You can check if the nodes are up and running with this command:
 (chmod only required once to make the file executable)
 ``` console
-chmod +x ping.sh 
+chmod +x ping.sh
 ./ping.sh
 ```
 Additionally, you can check that all nodes are correctly added to the cluster:
@@ -63,7 +63,6 @@ vagrant ssh controller -c "sudo microk8s kubectl get nodes -o wide"
 ### Host-based Kubectl
 The Ansible setup retrieves the Kubectl config file which allows local Kubectl control over the cluster and stores it in the main directory under the name `microk8s-config`.
 As the operating systems differ in how they define their kubeconfig we just provide the file at this level.
-(For Linux there is a commented method that can move it directly into their `~/.kube` folder.)
 You are free to add these to your bash scripts or just link to them for single shells.
 
 The kubeconfig file can be mentioned directly with commands like this:
@@ -71,16 +70,22 @@ The kubeconfig file can be mentioned directly with commands like this:
 kubectl get nodes -o wide --kubeconfig microk8s-config
 ```
 Or it can be linked for the current shell, this will reset for a new shell:
-(Linux command in the example)
+
+Linux/MacOS:
 ``` console
 export KUBECONFIG=microk8s-config
+kubectl get nodes -o wide
+```
+Windows:
+``` console
+set KUBECONFIG=microk8s-config
 kubectl get nodes -o wide
 ```
 You can move the file and change the path however you like.
 With this export of direct definition you can control the cluster from your localhost. 
 
 ### Usage
-Once the application has been deployed, you can add these lines to your `/etc/hosts` (Linux), `C:\Windows\System32\drivers\etc\hosts` (Windows), or `private/etc/hosts` (macOS).
+Once the application has been deployed, you can add these lines to your `/etc/hosts` (Linux), `C:\Windows\System32\drivers\etc\hosts` (Windows), or `private/etc/hosts` (MacOS).
 ```
 <IP> app.local
 <IP> prometheus.local
