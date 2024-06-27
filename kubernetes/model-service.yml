@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: model-service
-          image: ghcr.io/remla24-02/model_service:latest
+          image: ghcr.io/remla24-02/model_service:stable
           imagePullPolicy: Always
           ports:
             - containerPort: 5001
@@ -56,7 +56,7 @@ spec:
     spec:
       containers:
         - name: model-service
-          image: ghcr.io/remla24-02/model_service:latest
+          image: ghcr.io/remla24-02/model_service:canary
           imagePullPolicy: Always
           ports:
             - containerPort: 5001

@@ -1,13 +1,13 @@
 services:
   model-service:
-    image: "ghcr.io/remla24-02/model_service:latest"
+    image: "ghcr.io/remla24-02/model_service:stable"
     container_name: model-service
     ports:
       - "5001:5001"
     command: python ./app/main.py
 
   app:
-    image: "ghcr.io/remla24-02/app:latest"
+    image: "ghcr.io/remla24-02/app:stable"
     container_name: app
     ports:
       - "5000:5000"

@@ -17,7 +17,19 @@
   when: join_command_available
   changed_when: false
 
+- name: Magic delay
+  ansible.builtin.pause:
+    seconds: 5
+  when: join_command_available
+  changed_when: false 
+
 - name: Run join command
   ansible.builtin.command: "{{ join_command }}"
   when: join_command_available
   changed_when: false
+
+- name: Magic delay 2
+  ansible.builtin.pause:
+    seconds: 5
+  when: join_command_available
+  changed_when: false 

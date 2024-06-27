@@ -11,7 +11,7 @@ kind: Deployment
 metadata:
   name: app-stable
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: app
@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: ghcr.io/remla24-02/app:v0.2.2
+          image: ghcr.io/remla24-02/app:stable
           imagePullPolicy: Always
           ports:
             - containerPort: 5000
@@ -39,7 +39,7 @@ spec:
                   name: model-service-config
                   key: model.service.url
             - name: ALLOWED_HOSTS
-              value: "app.local,10.1.49.17"
+              value: "app.local,prometheus.local"
           command: ["python", "manage.py", "runserver", "0.0.0.0:5000"]
           resources:
             limits:
@@ -71,7 +71,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: ghcr.io/remla24-02/app:latest
+          image: ghcr.io/remla24-02/app:canary
           imagePullPolicy: Always
           ports:
             - containerPort: 5000
@@ -82,7 +82,7 @@ spec:
                   name: model-service-config
                   key: model.service.url
             - name: ALLOWED_HOSTS
-              value: "app.local,10.1.49.17"
+              value: "app.local,prometheus.local"
           command: ["python", "manage.py", "runserver", "0.0.0.0:5000"]
           resources:
             limits:
