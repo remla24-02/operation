@@ -21,6 +21,7 @@
 - name: Join workers to the Kubernetes cluster
   hosts: workers
   become: true
+  serial: 1
   tasks:
     - name: Join node to the Kubernetes cluster
       ansible.builtin.include_role:
