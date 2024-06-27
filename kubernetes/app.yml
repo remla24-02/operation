@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: ghcr.io/remla24-02/app:v0.2.2
+          image: ghcr.io/remla24-02/app:stable
           imagePullPolicy: Always
           ports:
             - containerPort: 5000
@@ -71,7 +71,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: ghcr.io/remla24-02/app:latest
+          image: ghcr.io/remla24-02/app:canary
           imagePullPolicy: Always
           ports:
             - containerPort: 5000

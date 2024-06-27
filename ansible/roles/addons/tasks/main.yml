@@ -94,6 +94,11 @@
           | minify_json_string | from_json | to_json }}"
         istio-workload-dashboard.json: "{{ lookup('file', '{{ playbook_dir }}/../kubernetes/addons/dashboards/istio/istio-workload-dashboard.json')
           | minify_json_string | from_json | to_json }}"
+        app-main-dashboard.json: "{{ lookup('file', '{{ playbook_dir }}/../kubernetes/addons/dashboards/istio/app-main-dashboard.json')
+          | minify_json_string | from_json | to_json }}"
+        experiment-dashboard.json: "{{ lookup('file', '{{ playbook_dir }}/../kubernetes/addons/dashboards/istio/experiment-dashboard.json')
+          | minify_json_string | from_json | to_json }}"
+
   vars:
     ansible_python_interpreter: /opt/k8s_venv/bin/python3
   environment:
@@ -112,28 +117,6 @@
   ansible.builtin.command:
     cmd: |
       microk8s kubectl rollout status deployment/grafana -n istio-system
-  environment:
-    KUBECONFIG: /vagrant/microk8s-config
-  become: true
-  register: rollout_status
-  until: rollout_status.stdout.find("successfully rolled out") != -1
-  retries: 30
-  delay: 10
-  changed_when: false
-
-- name: Deploy jaeger
-  ansible.builtin.command:
-    cmd: microk8s kubectl apply -f /tmp/kubernetes/addons/jaeger.yml
-  environment:
-    KUBECONFIG: /vagrant/microk8s-config
-  become: true
-  changed_when: false
-  register: addons_applied
-
-- name: Wait for jaeger to be running
-  ansible.builtin.command:
-    cmd: |
-      microk8s kubectl rollout status deployment/jaeger -n istio-system
   environment:
     KUBECONFIG: /vagrant/microk8s-config
   become: true

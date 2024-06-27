@@ -20,7 +20,6 @@ Manual deployment
 ### Addons (Optional)
 Available addons:
 - [Kiali](https://kiali.io/)
-- [Jaeger](https://www.jaegertracing.io/)
 - [Prometheus](https://prometheus.io/)
 - [Grafana](https://grafana.com/)
 
@@ -194,7 +193,6 @@ docker compose up
 │   ├── addons                    # Addons configurations
 │   │   ├── grafana.yml
 │   │   ├── istio-gateway.yml
-│   │   ├── jaeger.yml
 │   │   ├── kiali.yml
 │   │   └── prometheus.yml
 │   ├── app.yml
