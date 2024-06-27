@@ -112,6 +112,11 @@ kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | awk
 #### Sticky sessions
 The web application has sticky sessions enabled. This means you will either get the stable release or the canary release. If you'd like to test this, remove the cookies before refreshing. You might need to do this multiple times as the canary build will only show 10% of the time.
 
+
+### Additional Use Case
+A Local Rate Limit is present in the application. It is enforced by an EnvoyFilter present in the file ```kubernetes\app.yml```.
+A maximum of 30 requests per minute can be sent to the application. If you would like to increase/decrease the limit, you can change both the parameters ```max_tokens``` and ```tokens_per_fill``` in the EnvoyFiler with the desired value.
+
 ## Kubernetes
 
 ### Manual Deployment
